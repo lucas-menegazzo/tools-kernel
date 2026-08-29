@@ -9,6 +9,25 @@ This is an internal-tools factory for a regulated fintech. It replaces a Power A
 
 The legacy Power Apps are in `legacy/`, unpacked from their `.msapp` files. See [`legacy/README.md`](legacy/README.md) for what each one does wrong.
 
+## What I built
+
+I simulated an export of the three legacy apps from Power Apps and a migration to a shared kernel carrying the common and regulated code, then built the three apps from the brief on top of it. Each one is a schema, a permission map, and the logic specific to it. I built this to show Devin is at its most useful as the context layer across a codebase, accumulating all the necessary business logic from code, then operating on its own.
+
+Then I built a fourth app that was not in the brief, built last and deliberately shaped differently, to measure two things: how much faster it went, and how much of it was already decided by the first three.
+
+The apps in `apps/` are:
+
+- `kyc-review-queue` — the first app, ported from `legacy/KYCReviewQueue/`
+- `refunds-dashboard` — the second app, ported from `legacy/RefundsDashboard/`
+- `feature-flag-admin` — the third app, ported from `legacy/FeatureFlagAdmin/`
+- `restrictive-list-screening` — the fourth app, deliberately two-related-entity, not in the brief
+
+Identity, customer data and the bureau connectors are mocked.
+
+## Architecture
+
+Apps are a shell layer over a shared kernel (`core/`). The regulatory surface lives in the kernel: auth (SSO), RBAC, audit trail, PII-masking, four-eyes approvals. The kernel also carries the shared UI set and the schema-to-app scaffold. Row-level policies are enforced and forced in the database, and the audit trail is a hash chain, so "how do you know this log was not altered" has an answer.
+
 ## How to run it end to end
 
 ```bash
