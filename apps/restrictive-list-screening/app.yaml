@@ -1,0 +1,296 @@
+# Restrictive List Screening Queue
+# Fourth app: deliberately different from the first three.
+# Two related entities; decision lives on the child; alert closure depends on children.
+
+app:
+  name: restrictive-list-screening
+  description: Triagem de listas restritivas (CSNU, OFAC, PEP) para compliance
+  schema: screening
+
+# Format extension: two related entities are declared explicitly.
+entities:
+  screening_alert:
+    table_name: alerts
+    fields:
+      - name: id
+        type: serial
+        primary_key: true
+        system: true
+
+      - name: alert_id
+        type: text
+        unique: true
+        pii: false
+        description: "User-facing alert identifier"
+
+      - name: tax_id
+        type: text
+        pii: true
+        pii_type: cpf
+        description: "Customer CPF"
+        max_length: 14
+
+      - name: customer_name
+        type: text
+        pii: true
+        pii_type: name
+        description: "Customer full name"
+        max_length: 200
+
+      - name: screened_at
+        type: timestamp
+        pii: false
+        description: "When the screening was performed"
+        default: "NOW()"
+
+      - name: status
+        type: text
+        pii: false
+        enum: ["Aberto", "Em analise", "Aguardando aprovacao", "Fechado", "Encerrado"]
+        description: "Overall alert status"
+
+      - name: assigned_to
+        type: text
+        pii: false
+        description: "Analyst assigned to the alert"
+        max_length: 100
+
+      - name: team
+        type: text
+        pii: false
+        description: "Team owning the alert"
+        max_length: 100
+
+      - name: analysis_deadline
+        type: timestamp
+        pii: false
+        description: "Deadline for analysis (2-day compliance SLA)"
+        retention_basis: "compliance-2-day-screening-sla"
+
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who opened the alert"
+        max_length: 100
+
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the alert was created"
+        default: "NOW()"
+
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the alert was last updated"
+        default: "NOW()"
+
+  list_match:
+    table_name: list_matches
+    fields:
+      - name: id
+        type: serial
+        primary_key: true
+        system: true
+
+      - name: match_id
+        type: text
+        unique: true
+        pii: false
+        description: "User-facing match identifier"
+
+      - name: alert_id
+        type: text
+        pii: false
+        description: "Parent alert reference"
+
+      - name: list_name
+        type: text
+        pii: false
+        enum: ["CSNU", "OFAC", "PEP"]
+        description: "Which restrictive list produced the match"
+
+      - name: matched_name
+        type: text
+        pii: false
+        description: "Name found on the restrictive list"
+        max_length: 200
+
+      - name: similarity_score
+        type: numeric
+        pii: false
+        description: "Name similarity score, 0.0 to 1.0"
+
+      - name: decision
+        type: text
+        pii: false
+        enum: ["indeterminado", "falso_positivo", "match_confirmado"]
+        description: "Match decision: undecided, false positive, or confirmed true match"
+
+      - name: justification
+        type: text
+        pii: false
+        description: "Justification for the match decision"
+        max_length: 4000
+
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who created the match"
+        max_length: 100
+
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the match was created"
+        default: "NOW()"
+
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the match was last updated"
+        default: "NOW()"
+
+# Format extension: parent-child relationship, explicit and navigable.
+relationships:
+  - parent: screening_alert
+    child: list_match
+    parent_key: alert_id
+    child_key: alert_id
+    cardinality: one_to_many
+
+# Format extension: multiple approval bands (one per child table here).
+approval_configurations:
+  - table_name: list_matches
+    band:
+      name: screening_match_approval_band
+      approving_roles: ["Supervisor Compliance", "Gerente Compliance"]
+      required_approvals: 1
+      description: "A confirmed match must be approved by a compliance supervisor or manager"
+    rules:
+      - proposer_cannot_approve: true
+      - record_refusals: true
+      - distinct_approvals: true
+
+row_level_security:
+  - entity: screening_alert
+    policies:
+      - name: "analyst_team_visibility"
+        description: "Analysts see their assigned alerts and their team alerts; managers see all"
+        using: |
+          assigned_to = current_actor_id()
+          OR team = current_actor_team()
+          OR has_role('Gerente Compliance')
+
+      - name: "no_visibility_for_unauthorized"
+        description: "Only compliance roles may see screening alerts"
+        using: |
+          has_role('Analista Compliance')
+          OR has_role('Supervisor Compliance')
+          OR has_role('Gerente Compliance')
+
+  # Format extension: cascade RLS declared by referencing the parent.
+  - entity: list_match
+    cascade: true
+    parent_entity: screening_alert
+    parent_key: alert_id
+    policies:
+      - name: "cascade_from_alert"
+        description: "A match is visible only through its parent alert"
+        using: |
+          EXISTS (
+            SELECT 1 FROM screening.alerts a
+            WHERE a.alert_id = list_matches.alert_id
+              AND (a.assigned_to = current_actor_id()
+                   OR a.team = current_actor_team()
+                   OR has_role('Gerente Compliance'))
+          )
+
+# Format extension: closure conditions that depend on child state.
+closure_conditions:
+  - entity: screening_alert
+    terminal_statuses: ["Fechado", "Encerrado"]
+    conditions:
+      - name: "no_undecided_matches"
+        description: "Alert cannot close while any match is indeterminado"
+        check: |
+          NOT EXISTS (
+            SELECT 1 FROM screening.list_matches m
+            WHERE m.alert_id = screening_alert.alert_id
+              AND m.decision = 'indeterminado'
+              AND m.deleted_at IS NULL
+          )
+      - name: "true_matches_approved"
+        description: "Every confirmed true match must have a recorded approval before the alert closes"
+        check: |
+          NOT EXISTS (
+            SELECT 1 FROM screening.list_matches m
+            WHERE m.alert_id = screening_alert.alert_id
+              AND m.decision = 'match_confirmado'
+              AND m.deleted_at IS NULL
+              AND NOT has_sufficient_approvals('screening.list_matches', m.id::text)
+          )
+
+# Format extension: aggregate view for the queue.
+aggregate_views:
+  - name: alert_queue
+    description: "List of alerts with the number of still-undecided matches per alert"
+    source_tables: [screening_alert, list_match]
+    columns:
+      - alert_id
+      - screened_at
+      - status
+      - assigned_to
+      - team
+      - analysis_deadline
+      - masked_tax_id
+      - masked_customer_name
+      - undecided_matches
+
+business_rules:
+  - name: "2_day_analysis_deadline"
+    description: "Screening alerts must be triaged within 2 days of screening"
+    enforcement: "business_rule"
+    check: |
+      analysis_deadline <= screened_at + INTERVAL '2 days'
+
+  - name: "decision_lives_on_match"
+    description: "The decision is recorded on each list_match, not on the parent alert"
+    enforcement: "schema"
+
+  - name: "cascade_rls"
+    description: "A match is only visible if the actor can see the parent alert"
+    enforcement: "row_level_security"
+
+  - name: "per_match_approval"
+    description: "Confirmed true matches require a separate approval per match"
+    enforcement: "kernel_approval_system"
+
+  - name: "audit_every_match_and_alert"
+    description: "Every change to alerts and matches is recorded in the audit trail"
+    enforcement: "kernel_audit_trail"
+
+  - name: "soft_delete_with_10_year_retention"
+    description: "Deleted records are retained for 10 years per compliance policy"
+    enforcement: "kernel_soft_delete"
+    retention_years: 10
+    retention_basis: "compliance-data-retention-policy"
+
+ui_requirements:
+  - queue_screen:
+      features:
+        - alert_list_with_undecided_match_count
+        - cpf_and_name_masking
+        - role_and_team_based_filtering
+        - deadline_highlighting
+      tokens: use_design_system
+      fonts: use_design_system
+
+  - match_screen:
+      features:
+        - match_detail_per_alert
+        - similarity_score_display
+        - decision_and_justification_input
+        - approval_action_per_match
+      tokens: use_design_system
+      fonts: use_design_system

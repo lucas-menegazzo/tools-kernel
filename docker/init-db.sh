@@ -68,4 +68,16 @@ if [ -f "/apps/refunds-dashboard/seed-data.sql" ]; then
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/refunds-dashboard/seed-data.sql
 fi
 
+# Load Feature Flag Admin app SQL files
+echo "Loading Feature Flag Admin app SQL files..."
+if [ -f "/apps/feature-flag-admin/schema.sql" ]; then
+    echo "Loading /apps/feature-flag-admin/schema.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/feature-flag-admin/schema.sql
+fi
+
+if [ -f "/apps/feature-flag-admin/seed-data.sql" ]; then
+    echo "Loading /apps/feature-flag-admin/seed-data.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/feature-flag-admin/seed-data.sql
+fi
+
 echo "Database initialization completed successfully."
