@@ -86,7 +86,7 @@ app.get('/api/kyc-cases', async (req, res) => {
         team
       FROM kyc.kyc_cases
       WHERE deleted_at IS NULL
-      ORDER BY qualification_deadline ASC
+      ORDER BY case_number
     `, [actor.canRevealPII]);
     
     await client.query('COMMIT');

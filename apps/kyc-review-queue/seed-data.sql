@@ -160,11 +160,18 @@ SELECT
     generate_brazilian_name(),
     'Baixo',
     'Aprovado',
-    'marina.alves@thefintechcompany.com.br',
-    NOW() - INTERVAL '60 days',
-    NOW() - INTERVAL '35 days',
+    CASE 
+        WHEN i % 6 = 0 THEN 'marina.alves@thefintechcompany.com.br'
+        WHEN i % 6 = 1 THEN 'rafael.souza@thefintechcompany.com.br'
+        WHEN i % 6 = 2 THEN 'beatriz.lima@thefintechcompany.com.br'
+        WHEN i % 6 = 3 THEN 'tiago.rocha@thefintechcompany.com.br'
+        WHEN i % 6 = 4 THEN 'camila.nunes@thefintechcompany.com.br'
+        ELSE 'diego.prado@thefintechcompany.com.br'
+    END,
+    NOW() - INTERVAL '60 days' - (i * INTERVAL '1 hour'),
+    NOW() - INTERVAL '35 days' - (i * INTERVAL '1 hour'),
     'Case approved after review',
-    'Team A',
+    CASE WHEN i % 2 = 0 THEN 'Team A' ELSE 'Team B' END,
     'system.seed'
 FROM generate_series(1, 100) AS i;
 
