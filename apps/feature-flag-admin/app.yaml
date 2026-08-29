@@ -1,0 +1,103 @@
+# Feature Flag Admin App
+# Derived from legacy/FeatureFlagAdmin/
+# App declaration: entities, fields, RLS policy, migration and audit rules
+
+app:
+  name: feature-flag-admin
+  description: Feature flag administration panel for platform operations
+  schema: feature_flag
+
+entities:
+  feature_flag:
+    table_name: feature_flags
+    fields:
+      - name: flag_key
+        type: text
+        primary_key: true
+        pii: false
+        description: "Unique feature flag key"
+        max_length: 100
+
+      - name: description
+        type: text
+        pii: false
+        description: "Human-readable description of the flag"
+        max_length: 300
+
+      - name: environment
+        type: text
+        pii: false
+        enum: ["desenvolvimento", "homologacao", "producao"]
+        description: "Target environment as a strict enum, migrated from legacy free-text values"
+
+      - name: is_active
+        type: boolean
+        pii: false
+        description: "Whether the flag is currently active"
+
+      - name: owning_team
+        type: text
+        pii: false
+        description: "Team that owns this flag"
+        max_length: 100
+
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who created the flag"
+        max_length: 100
+
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the flag was created"
+        default: "NOW()"
+
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the flag was last updated"
+        default: "NOW()"
+
+row_level_security:
+  entity: feature_flag
+  policies:
+    - name: "team_visibility"
+      description: "Team members see their own flags; platform tech leads see all flags"
+      using: |
+        owning_team = current_actor_team()
+        OR has_role('Tech Lead Plataforma')
+
+    - name: "no_visibility_for_unauthorized"
+      description: "Only platform team members and readers may see feature flags"
+      using: |
+        has_role('Engenheiro Plataforma')
+        OR has_role('Tech Lead Plataforma')
+        OR has_role('Leitor Plataforma')
+
+business_rules:
+  - name: "environment_is_strict_enum"
+    description: "Environment is constrained to canonical values; legacy variants are normalized during migration"
+    enforcement: "database_check_and_migration_function"
+
+  - name: "every_toggle_is_audited"
+    description: "Every change to a feature flag is recorded as an audit entry with old and new values"
+    enforcement: "kernel_audit_trail"
+
+  - name: "team_ownership_at_row_level"
+    description: "Each flag has an owning team; visibility and updates are enforced by RLS"
+    enforcement: "row_level_security"
+
+  - name: "no_orphaned_environments"
+    description: "Legacy free-text environment values are mapped to the canonical enum rather than left as orphans"
+    enforcement: "migration"
+
+ui_requirements:
+  - flags_screen:
+      features:
+        - flag_list_filtered_by_environment
+        - environment_dropdown_with_enum_values
+        - toggle_with_audit_trail
+        - team_based_visibility
+      tokens: use_design_system
+      fonts: use_design_system
