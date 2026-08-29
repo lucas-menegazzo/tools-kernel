@@ -19,7 +19,7 @@ const pool = new Pool({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Available actors for testing
+// Available KYC actors for testing
 const actors = [
   {
     email: 'marina.alves@thefintechcompany.com.br',
@@ -40,6 +40,38 @@ const actors = [
     name: 'Otavio Branco',
     role: 'CISO',
     team: 'Security',
+    canRevealPII: true
+  }
+];
+
+// Available Refunds actors for testing
+const refundActors = [
+  {
+    email: 'larissa.melo@thefintechcompany.com.br',
+    name: 'Larissa Melo',
+    role: 'Analista Senior',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'bruno.tavares@thefintechcompany.com.br',
+    name: 'Bruno Tavares',
+    role: 'Analista Senior',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'paula.werneck@thefintechcompany.com.br',
+    name: 'Paula Werneck',
+    role: 'Supervisor Operacoes',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'ricardo.salles@thefintechcompany.com.br',
+    name: 'Ricardo Salles',
+    role: 'Gerente Operacoes',
+    team: 'Operacoes',
     canRevealPII: true
   }
 ];
@@ -171,6 +203,104 @@ app.post('/api/test-approval', async (req, res) => {
     
   } catch (error) {
     console.error('Error testing approval:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// API endpoint to get refund actors
+app.get('/api/refund-actors', (req, res) => {
+  res.json(refundActors);
+});
+
+// API endpoint to get refund queue for current actor
+app.get('/api/refunds', async (req, res) => {
+  const actorEmail = req.query.actor;
+  const actor = refundActors.find(a => a.email === actorEmail);
+  
+  if (!actor) {
+    return res.status(400).json({ error: 'Invalid actor' });
+  }
+  
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    await setActorContext(client, actor);
+    
+    const result = await client.query(`
+      SELECT 
+        id,
+        case_number,
+        nome_cliente,
+        mask_cpf(cpf_cliente, $1) as cpf_cliente,
+        valor,
+        motivo,
+        status,
+        solicitado_por,
+        solicitada_em,
+        team
+      FROM refunds.devolucoes
+      WHERE deleted_at IS NULL AND status <> 'Concluida'
+      ORDER BY case_number
+    `, [actor.canRevealPII]);
+    
+    const totalResult = await client.query(`
+      SELECT COALESCE(SUM(valor), 0) as total_em_aberto
+      FROM refunds.devolucoes
+      WHERE deleted_at IS NULL AND status = 'Aguardando aprovacao'
+    `);
+    
+    await client.query('COMMIT');
+    
+    res.json({
+      actor: actor,
+      cases: result.rows,
+      count: result.rows.length,
+      totalEmAberto: parseFloat(totalResult.rows[0].total_em_aberto)
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error fetching refunds:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// API endpoint to approve one or more refunds (single and bulk share this code path)
+app.post('/api/refunds/approve', async (req, res) => {
+  const { ids, actorEmail, decision, reason } = req.body;
+  const actor = refundActors.find(a => a.email === actorEmail);
+  
+  if (!actor) {
+    return res.status(400).json({ error: 'Invalid actor' });
+  }
+  
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: 'Refund ids array is required' });
+  }
+  
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    await setActorContext(client, actor);
+    
+    const result = await client.query(`
+      SELECT * FROM refunds.aprovar_devolucoes($1, $2, $3)
+    `, [ids, decision || 'approved', reason || '']);
+    
+    await client.query('COMMIT');
+    
+    res.json({
+      actor: actor,
+      results: result.rows
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error approving refunds:', error);
     res.status(500).json({ error: error.message });
   } finally {
     client.release();
