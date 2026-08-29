@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -324,6 +324,21 @@
     <script>
         let currentActor = null;
         let actors = [];
+
+        const riskMap = {
+            'Baixo': 'Low',
+            'Medio': 'Medium',
+            'Alto': 'High',
+            'PEP': 'PEP'
+        };
+
+        const statusMap = {
+            'Novo': 'New',
+            'Em analise': 'In analysis',
+            'Aguardando aprovacao': 'Awaiting approval',
+            'Aprovado': 'Approved',
+            'Encerrado': 'Closed'
+        };
         
         // Load actors
         async function loadActors() {
@@ -399,8 +414,8 @@
                         <td style="font-family: 'Geist Mono', monospace;">${c.case_number}</td>
                         <td>${c.full_name}</td>
                         <td style="font-family: 'Geist Mono', monospace;">${c.cpf}</td>
-                        <td><span class="risk-badge risk-${c.risk_level.toLowerCase()}">${c.risk_level}</span></td>
-                        <td><span class="status status-${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
+                        <td><span class="risk-badge risk-${c.risk_level.toLowerCase()}">${riskMap[c.risk_level] || c.risk_level}</span></td>
+                        <td><span class="status status-${c.status.toLowerCase().replace(' ', '-')}">${statusMap[c.status] || c.status}</span></td>
                         <td>${c.responsible_analyst}</td>
                         <td class="deadline ${deadlineClass}">${daysUntil} days (${deadline.toLocaleDateString()})</td>
                     </tr>

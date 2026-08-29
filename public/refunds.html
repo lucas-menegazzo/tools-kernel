@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -201,6 +201,7 @@
         .status-aguardando-aprovacao { background: rgba(245, 142, 58, 0.1); color: #F58E3A; }
         .status-aprovada { background: rgba(0, 236, 126, 0.1); color: #00EC7E; }
         .status-recusada { background: rgba(245, 59, 58, 0.1); color: #F53B3A; }
+        .status-concluida { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
 
         .loading {
             text-align: center;
@@ -253,7 +254,7 @@
     <div class="container">
         <header>
             <h1>Refunds Dashboard</h1>
-            <p class="subtitle">Demonstração de alçadas por valor e caminho único de aprovação</p>
+            <p class="subtitle">Amount-based approval bands and a single approval code path</p>
         </header>
 
         <div class="nav">
@@ -261,47 +262,47 @@
         </div>
 
         <div class="actor-selector">
-            <h2>Selecionar Ator</h2>
+            <h2>Select Actor</h2>
             <div class="actor-buttons" id="actorButtons"></div>
         </div>
 
         <div id="currentActor" class="current-actor" style="display: none;"></div>
 
         <div class="queue-info">
-            <div class="queue-count" id="queueCount">Nenhum reembolso carregado</div>
+            <div class="queue-count" id="queueCount">No refunds loaded</div>
             <div class="total-open" id="totalOpen"></div>
         </div>
 
         <div class="bulk-actions" id="bulkActions" style="display: none;">
-            <button class="action-btn" id="approveBtn" disabled>Aprovar selecionados</button>
-            <button class="action-btn reject" id="rejectBtn" disabled>Recusar selecionados</button>
+            <button class="action-btn" id="approveBtn" disabled>Approve selected</button>
+            <button class="action-btn reject" id="rejectBtn" disabled>Reject selected</button>
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
-        <div id="loading" class="loading">Selecione um ator para carregar reembolsos</div>
+        <div id="loading" class="loading">Select an actor to load refunds</div>
 
         <table class="cases-table" id="casesTable" style="display: none;">
             <thead>
                 <tr>
                     <th><input type="checkbox" id="selectAll"></th>
-                    <th>Número</th>
-                    <th>Cliente</th>
-                    <th>CPF</th>
-                    <th class="amount">Valor</th>
-                    <th>Motivo</th>
+                    <th>Number</th>
+                    <th>Customer</th>
+                    <th>Tax ID</th>
+                    <th class="amount">Amount</th>
+                    <th>Reason</th>
                     <th>Status</th>
-                    <th>Solicitado por</th>
+                    <th>Requested by</th>
                 </tr>
             </thead>
             <tbody id="casesBody"></tbody>
         </table>
 
         <div class="info-panel">
-            <h3>Demonstração de alçadas</h3>
-            <p><strong>Larissa Melo / Bruno Tavares (Analista Senior):</strong> aprova reembolsos até R$ 5.000.</p>
-            <p><strong>Paula Werneck (Supervisor):</strong> aprova reembolsos de R$ 5.000 até R$ 50.000.</p>
-            <p><strong>Ricardo Salles (Gerente):</strong> aprova reembolsos acima de R$ 50.000, mas precisa de 2 aprovações distintas.</p>
-            <p><strong>Segregação:</strong> o próprio solicitante não pode aprovar, nem em lote.</p>
+            <h3>Approval band demonstration</h3>
+            <p><strong>Larissa Melo / Bruno Tavares (Senior Analyst):</strong> approves refunds up to R$ 5,000.</p>
+            <p><strong>Paula Werneck (Operations Supervisor):</strong> approves refunds from R$ 5,000 to R$ 50,000.</p>
+            <p><strong>Ricardo Salles (Operations Manager):</strong> approves refunds above R$ 50,000, but requires 2 distinct approvals.</p>
+            <p><strong>Separation of duties:</strong> the requester cannot approve their own refund, even in bulk.</p>
         </div>
     </div>
 
@@ -309,13 +310,29 @@
         let currentActor = null;
         let actors = [];
 
+        const statusMap = {
+            'Solicitada': 'Requested',
+            'Aguardando aprovacao': 'Awaiting approval',
+            'Aprovada': 'Approved',
+            'Recusada': 'Rejected',
+            'Concluida': 'Completed'
+        };
+
+        const reasonMap = {
+            'Cobranca indevida': 'Incorrect charge',
+            'Produto nao entregue': 'Product not delivered',
+            'Fraude confirmada': 'Confirmed fraud',
+            'Duplicidade': 'Duplicate charge',
+            'Outro': 'Other'
+        };
+
         async function loadActors() {
             try {
                 const response = await fetch('/api/refund-actors');
                 actors = await response.json();
                 renderActorButtons();
             } catch (error) {
-                showError('Falha ao carregar atores: ' + error.message);
+                showError('Failed to load actors: ' + error.message);
             }
         }
 
@@ -335,7 +352,7 @@
 
             document.getElementById('currentActor').style.display = 'block';
             document.getElementById('currentActor').innerHTML = `
-                <strong>Ator atual:</strong> ${currentActor.name} (${currentActor.role})
+                <strong>Current actor:</strong> ${currentActor.name} (${currentActor.role})
             `;
 
             await loadRefunds();
@@ -355,18 +372,18 @@
                 if (response.ok) {
                     renderRefunds(data);
                 } else {
-                    showError('Falha ao carregar reembolsos: ' + data.error);
+                    showError('Failed to load refunds: ' + data.error);
                 }
             } catch (error) {
-                showError('Falha ao carregar reembolsos: ' + error.message);
+                showError('Failed to load refunds: ' + error.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
         function renderRefunds(data) {
-            document.getElementById('queueCount').textContent = `${data.count} reembolsos visíveis para ${currentActor.name}`;
-            document.getElementById('totalOpen').textContent = `Total em aberto (DB): R$ ${data.totalEmAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            document.getElementById('queueCount').textContent = `${data.count} refunds visible to ${currentActor.name}`;
+            document.getElementById('totalOpen').textContent = `Open total (DB): R$ ${data.totalEmAberto.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
             const tbody = document.getElementById('casesBody');
             tbody.innerHTML = data.cases.map(c => `
@@ -375,9 +392,9 @@
                     <td style="font-family: 'Geist Mono', monospace;">${c.case_number}</td>
                     <td>${c.nome_cliente}</td>
                     <td style="font-family: 'Geist Mono', monospace;">${c.cpf_cliente}</td>
-                    <td class="amount">R$ ${parseFloat(c.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td>${c.motivo}</td>
-                    <td><span class="status status-${c.status.toLowerCase().replace(/ /g, '-')}">${c.status}</span></td>
+                    <td class="amount">R$ ${parseFloat(c.valor).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td>${reasonMap[c.motivo] || c.motivo}</td>
+                    <td><span class="status status-${c.status.toLowerCase().replace(/ /g, '-')}">${statusMap[c.status] || c.status}</span></td>
                     <td>${c.solicitado_por}</td>
                 </tr>
             `).join('');
@@ -425,14 +442,14 @@
                 if (response.ok) {
                     const failed = data.results.filter(r => !r.success);
                     if (failed.length > 0) {
-                        showError(`${failed.length} reembolso(s) recusados: ${failed.map(f => f.message).join('; ')}`);
+                        showError(`${failed.length} refund(s) rejected: ${failed.map(f => f.message).join('; ')}`);
                     }
                     await loadRefunds();
                 } else {
-                    showError('Falha na aprovação: ' + data.error);
+                    showError('Approval failed: ' + data.error);
                 }
             } catch (error) {
-                showError('Falha na aprovação: ' + error.message);
+                showError('Approval failed: ' + error.message);
             }
         }
 

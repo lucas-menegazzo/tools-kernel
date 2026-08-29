@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -238,7 +238,7 @@
     <div class="container">
         <header>
             <h1>Feature Flag Admin</h1>
-            <p class="subtitle">Visibilidade por time e herança de valores legados</p>
+            <p class="subtitle">Team visibility and legacy value normalization</p>
         </header>
 
         <div class="nav">
@@ -247,39 +247,39 @@
         </div>
 
         <div class="actor-selector">
-            <h2>Selecionar Ator</h2>
+            <h2>Select Actor</h2>
             <div class="actor-buttons" id="actorButtons"></div>
         </div>
 
         <div id="currentActor" class="current-actor" style="display: none;"></div>
 
         <div class="queue-info">
-            <div class="queue-count" id="queueCount">Nenhuma flag carregada</div>
+            <div class="queue-count" id="queueCount">No flags loaded</div>
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
-        <div id="loading" class="loading">Selecione um ator para carregar flags</div>
+        <div id="loading" class="loading">Select an actor to load flags</div>
 
         <table class="cases-table" id="casesTable" style="display: none;">
             <thead>
                 <tr>
                     <th>Flag Key</th>
-                    <th>Descrição</th>
-                    <th>Ambiente</th>
-                    <th>Ativo</th>
+                    <th>Description</th>
+                    <th>Environment</th>
+                    <th>Active</th>
                     <th>Owning Team</th>
-                    <th>Criado por</th>
+                    <th>Created by</th>
                 </tr>
             </thead>
             <tbody id="casesBody"></tbody>
         </table>
 
         <div class="info-panel">
-            <h3>Demonstração de RLS</h3>
-            <p><strong>Engenheiro Plataforma:</strong> vê e edita apenas flags do próprio time.</p>
-            <p><strong>Tech Lead Plataforma:</strong> vê e edita todas as flags.</p>
-            <p><strong>Leitor Plataforma:</strong> vê apenas as flags do time Risk.</p>
-            <p>Ambientes legados como "prod", "Producao" e "hml" foram normalizados para o enum canônico.</p>
+            <h3>RLS Demonstration</h3>
+            <p><strong>Platform Engineer:</strong> sees and edits only flags owned by their own team.</p>
+            <p><strong>Platform Tech Lead:</strong> sees and edits all flags.</p>
+            <p><strong>Platform Reader:</strong> sees only flags owned by the Risk team.</p>
+            <p>Legacy environment values such as "prod", "Producao" and "hml" are normalized to the canonical enum.</p>
         </div>
     </div>
 
@@ -287,13 +287,19 @@
         let currentActor = null;
         let actors = [];
 
+        const environmentMap = {
+            'desenvolvimento': 'Development',
+            'homologacao': 'Staging',
+            'producao': 'Production'
+        };
+
         async function loadActors() {
             try {
                 const response = await fetch('/api/feature-flag-actors');
                 actors = await response.json();
                 renderActorButtons();
             } catch (error) {
-                showError('Falha ao carregar atores: ' + error.message);
+                showError('Failed to load actors: ' + error.message);
             }
         }
 
@@ -313,7 +319,7 @@
 
             document.getElementById('currentActor').style.display = 'block';
             document.getElementById('currentActor').innerHTML = `
-                <strong>Ator atual:</strong> ${currentActor.name} (${currentActor.role}) - ${currentActor.team}
+                <strong>Current actor:</strong> ${currentActor.name} (${currentActor.role}) - ${currentActor.team}
             `;
 
             await loadFeatureFlags();
@@ -333,24 +339,24 @@
                 if (response.ok) {
                     renderFeatureFlags(data);
                 } else {
-                    showError('Falha ao carregar flags: ' + data.error);
+                    showError('Failed to load flags: ' + data.error);
                 }
             } catch (error) {
-                showError('Falha ao carregar flags: ' + error.message);
+                showError('Failed to load flags: ' + error.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
         function renderFeatureFlags(data) {
-            document.getElementById('queueCount').textContent = `${data.count} flags visíveis para ${currentActor.name}`;
+            document.getElementById('queueCount').textContent = `${data.count} flags visible to ${currentActor.name}`;
 
             const tbody = document.getElementById('casesBody');
             tbody.innerHTML = data.cases.map(c => `
                 <tr>
                     <td style="font-family: 'Geist Mono', monospace;">${c.flag_key}</td>
                     <td>${c.description}</td>
-                    <td><span class="environment env-${c.environment}">${c.environment}</span></td>
+                    <td><span class="environment env-${c.environment}">${environmentMap[c.environment] || c.environment}</span></td>
                     <td>
                         <button class="toggle ${c.is_active ? 'active' : 'inactive'}" 
                                 onclick="toggleFlag('${c.flag_key.replace(/'/g, "\\'")}')">
@@ -378,10 +384,10 @@
                 if (response.ok) {
                     await loadFeatureFlags();
                 } else {
-                    showError('Falha ao alterar flag: ' + data.error);
+                    showError('Failed to update flag: ' + data.error);
                 }
             } catch (error) {
-                showError('Falha ao alterar flag: ' + error.message);
+                showError('Failed to update flag: ' + error.message);
             }
         }
 
