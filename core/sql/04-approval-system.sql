@@ -29,6 +29,19 @@ CREATE TABLE approvals (
 CREATE INDEX idx_approvals_target ON approvals(target_table, target_record_id);
 CREATE INDEX idx_approvals_actor ON approvals(actor_id);
 
+-- Amount-based approval bands (e.g., refunds by value)
+CREATE TABLE amount_approval_bands (
+    id SERIAL PRIMARY KEY,
+    table_name TEXT NOT NULL,
+    min_amount NUMERIC(19,4) NOT NULL DEFAULT 0,
+    max_amount NUMERIC(19,4), -- NULL means unbounded
+    approving_roles TEXT[] NOT NULL,
+    required_approvals INTEGER NOT NULL CHECK (required_approvals >= 1),
+    description TEXT
+);
+
+CREATE UNIQUE INDEX idx_amount_bands_table_amount ON amount_approval_bands(table_name, min_amount, COALESCE(max_amount, 'Infinity'::NUMERIC));
+
 -- Table to associate approval bands with tables
 CREATE TABLE table_approval_bands (
     table_name TEXT PRIMARY KEY,
@@ -45,6 +58,22 @@ BEGIN
     SELECT ab.* INTO v_band FROM approval_bands ab
     JOIN table_approval_bands tab ON ab.id = tab.band_id
     WHERE tab.table_name = table_name;
+    RETURN v_band;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Get the amount-based band for a table and value
+CREATE FUNCTION get_amount_approval_band(p_table_name TEXT, p_amount NUMERIC)
+RETURNS amount_approval_bands AS $$
+DECLARE
+    v_band amount_approval_bands;
+BEGIN
+    SELECT * INTO v_band FROM amount_approval_bands
+    WHERE table_name = p_table_name
+      AND p_amount >= min_amount
+      AND (max_amount IS NULL OR p_amount < max_amount)
+    ORDER BY min_amount DESC
+    LIMIT 1;
     RETURN v_band;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -143,6 +172,121 @@ BEGIN
     AND target_record_id = p_target_record_id
     AND decision = 'approved';
     
+    RETURN v_approval_count >= v_band.required_approvals;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Record an approval for an amount-based band (e.g., refunds)
+CREATE FUNCTION record_amount_approval(
+    p_target_table TEXT,
+    p_target_record_id TEXT,
+    p_decision TEXT,
+    p_reason TEXT DEFAULT NULL
+)
+RETURNS void AS $$
+DECLARE
+    v_band amount_approval_bands;
+    v_actor_id TEXT;
+    v_actor_roles TEXT[];
+    v_actor_role TEXT;
+    v_amount NUMERIC;
+    v_proposer_id TEXT;
+    v_current_approvals INTEGER;
+BEGIN
+    v_actor_id := current_actor_id();
+    v_actor_roles := current_actor_roles();
+
+    -- Get the monetary amount from the record (valor or amount)
+    BEGIN
+        EXECUTE format('SELECT valor FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_amount;
+    EXCEPTION WHEN undefined_column THEN
+        EXECUTE format('SELECT amount FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_amount;
+    END;
+
+    IF v_amount IS NULL THEN
+        RAISE EXCEPTION 'Could not determine amount for %', p_target_table;
+    END IF;
+
+    SELECT * INTO v_band FROM get_amount_approval_band(p_target_table, v_amount);
+    IF v_band IS NULL THEN
+        RAISE EXCEPTION 'No amount approval band configured for table % at value %', p_target_table, v_amount;
+    END IF;
+
+    IF NOT (v_band.approving_roles && v_actor_roles) THEN
+        RAISE EXCEPTION 'Actor % does not have required approving roles for amount %', v_actor_id, v_amount;
+    END IF;
+
+    v_actor_role := (SELECT unnest FROM unnest(v_actor_roles) unnest WHERE unnest = ANY(v_band.approving_roles) LIMIT 1);
+
+    -- Proposer segregation: cannot approve own request
+    BEGIN
+        EXECUTE format('SELECT solicitado_por FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_proposer_id;
+    EXCEPTION WHEN undefined_column THEN
+        EXECUTE format('SELECT created_by FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_proposer_id;
+    END;
+
+    IF v_proposer_id = v_actor_id THEN
+        RAISE EXCEPTION 'Actor % cannot approve their own proposal', v_actor_id;
+    END IF;
+
+    INSERT INTO approvals (
+        target_table, target_record_id, actor_id, actor_role, decision, reason
+    ) VALUES (
+        p_target_table, p_target_record_id, v_actor_id, v_actor_role, p_decision, p_reason
+    );
+
+    PERFORM create_audit_entry(
+        'approvals',
+        p_target_record_id,
+        'APPROVAL_' || UPPER(p_decision),
+        jsonb_build_object(
+            'target_table', p_target_table,
+            'target_record_id', p_target_record_id,
+            'decision', p_decision,
+            'reason', p_reason,
+            'actor_id', v_actor_id,
+            'actor_role', v_actor_role,
+            'amount', v_amount
+        )
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Check if a record has sufficient amount-based approvals
+CREATE FUNCTION has_sufficient_amount_approvals(p_target_table TEXT, p_target_record_id TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_band amount_approval_bands;
+    v_amount NUMERIC;
+    v_approval_count INTEGER;
+BEGIN
+    BEGIN
+        EXECUTE format('SELECT valor FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_amount;
+    EXCEPTION WHEN undefined_column THEN
+        EXECUTE format('SELECT amount FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+            INTO v_amount;
+    END;
+
+    IF v_amount IS NULL THEN
+        RETURN true;
+    END IF;
+
+    SELECT * INTO v_band FROM get_amount_approval_band(p_target_table, v_amount);
+    IF v_band IS NULL THEN
+        RETURN true;
+    END IF;
+
+    SELECT COUNT(DISTINCT actor_id) INTO v_approval_count
+    FROM approvals
+    WHERE target_table = p_target_table
+      AND target_record_id = p_target_record_id
+      AND decision = 'approved';
+
     RETURN v_approval_count >= v_band.required_approvals;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

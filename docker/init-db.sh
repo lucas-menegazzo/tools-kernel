@@ -56,4 +56,16 @@ if [ -f "/apps/kyc-review-queue/seed-data.sql" ]; then
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/kyc-review-queue/seed-data.sql
 fi
 
+# Load Refunds Dashboard app SQL files
+echo "Loading Refunds Dashboard app SQL files..."
+if [ -f "/apps/refunds-dashboard/schema.sql" ]; then
+    echo "Loading /apps/refunds-dashboard/schema.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/refunds-dashboard/schema.sql
+fi
+
+if [ -f "/apps/refunds-dashboard/seed-data.sql" ]; then
+    echo "Loading /apps/refunds-dashboard/seed-data.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/refunds-dashboard/seed-data.sql
+fi
+
 echo "Database initialization completed successfully."

@@ -50,6 +50,11 @@ GRANT EXECUTE ON FUNCTION mask_pii(TEXT, TEXT) TO tools_kernel_app;
 GRANT EXECUTE ON FUNCTION record_approval(TEXT, TEXT, TEXT, TEXT) TO tools_kernel_app;
 GRANT EXECUTE ON FUNCTION has_sufficient_approvals(TEXT, TEXT) TO tools_kernel_app;
 GRANT EXECUTE ON FUNCTION get_approval_status(TEXT, TEXT) TO tools_kernel_app;
+GRANT EXECUTE ON FUNCTION record_amount_approval(TEXT, TEXT, TEXT, TEXT) TO tools_kernel_app;
+GRANT EXECUTE ON FUNCTION has_sufficient_amount_approvals(TEXT, TEXT) TO tools_kernel_app;
+GRANT EXECUTE ON FUNCTION get_amount_approval_band(TEXT, NUMERIC) TO tools_kernel_app;
+GRANT SELECT ON amount_approval_bands TO tools_kernel_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO tools_kernel_app;
 
 -- Ensure future functions are also executable by app role
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO tools_kernel_app;

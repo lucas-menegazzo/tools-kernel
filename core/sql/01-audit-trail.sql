@@ -47,7 +47,7 @@ BEGIN
     
     RETURN encode(digest(combined, 'sha256'), 'hex');
 END;
-$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Function to create audit entry (called within same transaction as mutation)
 CREATE FUNCTION create_audit_entry(

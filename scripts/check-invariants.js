@@ -122,6 +122,44 @@ const checks = [
     `,
     validate: (result) => result.rows[0]?.exists === true,
   },
+  {
+    name: 'RLS enabled on refunds.devolucoes',
+    sql: `
+      SELECT relrowsecurity 
+      FROM pg_class 
+      WHERE relname = 'devolucoes' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'refunds')
+    `,
+    validate: (result) => result.rows[0]?.relrowsecurity === true,
+  },
+  {
+    name: 'Force RLS enabled on refunds.devolucoes',
+    sql: `
+      SELECT relforcerowsecurity 
+      FROM pg_class 
+      WHERE relname = 'devolucoes' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'refunds')
+    `,
+    validate: (result) => result.rows[0]?.relforcerowsecurity === true,
+  },
+  {
+    name: 'Refunds amount approval bands configured',
+    sql: `
+      SELECT COUNT(*) 
+      FROM amount_approval_bands 
+      WHERE table_name = 'refunds.devolucoes'
+    `,
+    validate: (result) => parseInt(result.rows[0]?.count) >= 3,
+  },
+  {
+    name: 'Refunds approval shared code path function exists',
+    sql: `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE n.nspname = 'refunds' AND p.proname = 'aprovar_devolucoes'
+      )
+    `,
+    validate: (result) => result.rows[0]?.exists === true,
+  },
 ];
 
 async function runChecks() {
