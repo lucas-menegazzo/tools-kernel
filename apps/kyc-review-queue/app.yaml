@@ -1,0 +1,230 @@
+# KYC Review Queue App
+# Derived from legacy/KYCReviewQueue/
+# App declaration: entities, fields, state machine, RLS policy, approval configuration
+
+app:
+  name: kyc-review-queue
+  description: KYC case review queue for compliance operations
+  schema: kyc
+
+entities:
+  kyc_case:
+    table_name: kyc_cases
+    fields:
+      - name: case_number
+        type: text
+        primary_key: true
+        pii: false
+        description: "Unique case identifier"
+      
+      - name: cpf
+        type: text
+        pii: true
+        pii_type: cpf
+        description: "Brazilian tax ID of the applicant"
+        max_length: 14
+      
+      - name: full_name
+        type: text
+        pii: true
+        pii_type: name
+        description: "Full name of the applicant"
+        max_length: 200
+      
+      - name: risk_level
+        type: text
+        pii: false
+        enum: ["Baixo", "Medio", "Alto", "PEP"]
+        description: "Risk classification level"
+      
+      - name: status
+        type: text
+        pii: false
+        enum: ["Novo", "Em analise", "Aguardando aprovacao", "Aprovado", "Reprovado", "Comunicado ao Coaf", "Encerrado"]
+        description: "Current case status"
+      
+      - name: responsible_analyst
+        type: text
+        pii: false
+        description: "Email of the responsible analyst"
+        max_length: 100
+      
+      - name: opened_at
+        type: timestamp
+        pii: false
+        description: "When the case was opened"
+      
+      - name: qualification_deadline
+        type: timestamp
+        pii: false
+        description: "30-day deadline for qualification (compliance rule: 30-day KYC review period)"
+        retention_basis: "compliance-30-day-kyc-review"
+      
+      - name: analysis_result
+        type: text
+        pii: false
+        description: "Analysis result and comments"
+        max_length: 4000
+      
+      - name: team
+        type: text
+        pii: false
+        description: "Team responsible for the case"
+        max_length: 100
+      
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who created the case"
+        max_length: 100
+      
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the case was created"
+        default: "NOW()"
+      
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the case was last updated"
+        default: "NOW()"
+
+state_machine:
+  entity: kyc_case
+  initial_state: "Novo"
+  states:
+    - name: "Novo"
+      transitions:
+        - to: "Em analise"
+          action: "assign_analyst"
+          allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+    
+    - name: "Em analise"
+      transitions:
+        - to: "Aguardando aprovacao"
+          action: "submit_for_approval"
+          allowed_roles: ["Analista Compliance", "Supervisor Compliance"]
+        - to: "Encerrado"
+          action: "close_case"
+          allowed_roles: ["Gerente Compliance"]
+    
+    - name: "Aguardando aprovacao"
+      transitions:
+        - to: "Aprovado"
+          action: "approve"
+          allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+          requires_approval: true
+        - to: "Reprovado"
+          action: "reject"
+          allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+          requires_approval: true
+        - to: "Comunicado ao Coaf"
+          action: "report_to_coaf"
+          allowed_roles: ["Gerente Compliance"]
+    
+    - name: "Aprovado"
+      transitions:
+        - to: "Encerrado"
+          action: "close_case"
+          allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+    
+    - name: "Reprovado"
+      transitions:
+        - to: "Encerrado"
+          action: "close_case"
+          allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+    
+    - name: "Comunicado ao Coaf"
+      transitions:
+        - to: "Encerrado"
+          action: "close_case"
+          allowed_roles: ["Gerente Compliance"]
+    
+    - name: "Encerrado"
+      transitions: [] # Terminal state
+
+row_level_security:
+  entity: kyc_case
+  policies:
+    - name: "analyst_visibility"
+      description: "Analysts see only their assigned cases"
+      using: |
+        responsible_analyst = current_actor_id() 
+        OR has_role('Supervisor Compliance') 
+        OR has_role('Gerente Compliance')
+    
+    - name: "team_visibility"
+      description: "Supervisors see all cases in their team"
+      using: |
+        team = current_actor_team() 
+        OR has_role('Gerente Compliance')
+    
+    - name: "no_visibility_for_unauthorized"
+      description: "Users with no relevant roles see nothing"
+      using: |
+        has_role('Analista Compliance') 
+        OR has_role('Supervisor Compliance') 
+        OR has_role('Gerente Compliance')
+
+approval_configuration:
+  table_name: kyc_cases
+  band:
+    name: "kyc_approval_band"
+    approving_roles: ["Supervisor Compliance", "Gerente Compliance"]
+    required_approvals: 1
+    description: "KYC cases require single approval from supervisor or manager"
+  rules:
+    - proposer_cannot_approve: true
+    - record_refusals: true
+    - distinct_approvals: true
+
+business_rules:
+  - name: "30_day_qualification_deadline"
+    description: "KYC cases must be qualified within 30 days of opening"
+    enforcement: "application_and_database"
+    check: |
+      qualification_deadline <= opened_at + INTERVAL '30 days'
+  
+  - name: "analyst_cannot_approve_own_case"
+    description: "The analyst assigned to a case cannot approve it"
+    enforcement: "kernel_approval_system"
+  
+  - name: "coaf_reporting_requires_manager"
+    description: "Only compliance managers can report to COAF"
+    enforcement: "state_machine"
+  
+  - name: "soft_delete_with_10_year_retention"
+    description: "Deleted cases are retained for 10 years per compliance policy"
+    enforcement: "kernel_soft_delete"
+    retention_years: 10
+    retention_basis: "compliance-data-retention-policy"
+
+export_capabilities:
+  - name: "csv_export"
+    description: "Export current filtered view to CSV"
+    requires_approval: true
+    audit_required: true
+    allowed_roles: ["Supervisor Compliance", "Gerente Compliance"]
+
+ui_requirements:
+  - queue_screen:
+      features:
+        - case_list_with_pagination
+        - deadline_display_with_overdue_highlighting
+        - risk_level_color_coding
+        - role_based_visibility_filtering
+        - csv_export_with_audit_trail
+      tokens: use_design_system
+      fonts: use_design_system
+  
+  - review_screen:
+      features:
+        - case_detail_view
+        - attachment_gallery
+        - analysis_result_input
+        - approval_action_buttons
+        - coaf_reporting_button
+        - soft_delete_button
+      tokens: use_design_system
+      fonts: use_design_system
