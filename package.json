@@ -1,0 +1,11 @@
+{
+  "name": "tools-kernel",
+  "version": "1.0.0",
+  "description": "Internal tools factory for regulated fintech",
+  "scripts": {
+    "check": "echo 'Check command - to be implemented with actual linting/tests'"
+  },
+  "keywords": ["fintech", "internal-tools", "kernel"],
+  "author": "",
+  "license": "ISC"
+}
