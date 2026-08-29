@@ -1,0 +1,95 @@
+/* ============================================================
+   Devin (devin.ai) — design tokens
+   Extraído de devin.ai em 2026-08-29. Tema escuro (dark-first).
+   ============================================================ */
+
+:root {
+  /* --- Paleta oficial de marca (cognition.ai/brand) --- */
+  --devin-brand-purple: #3969CA; /* nome oficial "Purple" (é um azul-índigo) */
+  --devin-brand-green:  #21C19A;
+  --devin-brand-blue:   #0294DE;
+
+  /* --- Fundos --- */
+  --bg-page:           #141414;
+  --bg-wash:           #191919;
+  --bg-elevated:       #1F1F1F;
+  --bg-elevated-wax:   rgba(31, 31, 31, 0.94);
+  --bg-accent-neutral: #F9F9F9;
+  --bg-scrim:          rgba(0, 0, 0, 0.32);
+
+  /* --- Texto --- */
+  --text-primary:         rgba(255, 255, 255, 0.90);
+  --text-secondary:       rgba(255, 255, 255, 0.52);
+  --text-muted:           rgba(255, 255, 255, 0.40);
+  --text-disabled:        rgba(255, 255, 255, 0.40);
+  --text-primary-strong:  #FFFFFF;
+  --text-primary-inverse: #000000;
+  --text-always-white:    #FFFFFF;
+  --text-always-black:    #0D0F0D;
+
+  /* --- Acento --- */
+  --text-accent-primary:   #49B0FF;
+  --bg-accent-primary:     #4489FF;
+  --border-accent-primary: #49B0FF;
+  --bg-accent-secondary:   rgba(21, 107, 255, 0.08);
+  --tint-accent-secondary: rgba(68, 137, 255, 0.05);
+
+  /* --- Semânticas --- */
+  --text-green:  #00EC7E;  --bg-green:  rgba(0, 236, 126, 0.08);
+  --text-red:    #F53B3A;  --bg-red:    rgba(245, 59, 58, 0.12);
+  --text-purple: #956CDE;  --bg-purple: rgba(149, 108, 222, 0.12);
+  --text-orange: #F58E3A;  --bg-orange: rgba(245, 142, 58, 0.08);
+  --text-blue:   #337DF4;  --bg-blue:   rgba(51, 125, 244, 0.10);
+  --text-link:   rgba(62, 184, 237, 0.85);
+  --text-link-strong: #3EB8ED;
+  --bg-link:     rgba(62, 184, 237, 0.08);
+  --text-destructive: #F53B3A;
+  --bg-destructive:   #F53B3A;
+
+  /* --- Bordas e tints --- */
+  --border-primary:        rgba(255, 255, 255, 0.08);
+  --border-secondary:      rgba(255, 255, 255, 0.04);
+  --border-primary-strong: #FFFFFF;
+  --tint-primary:   rgba(255, 255, 255, 0.08);
+  --tint-secondary: rgba(255, 255, 255, 0.05);
+  --tint-tertiary:  rgba(255, 255, 255, 0.03);
+  --tint-faint:     rgba(255, 255, 255, 0.015);
+
+  /* --- Sombras --- */
+  --shadow-L1: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
+  --shadow-L2: 0px 1px 3px 0px rgba(0, 0, 0, 0.25), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+  --shadow-L3: 0px 10px 15px -3px rgba(0, 0, 0, 0.3), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-L4: 0px 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-inner: inset 0px -1px 1px 0px rgba(255, 255, 255, 0.04);
+
+  /* --- Tipografia --- */
+  --font-heading: "nbInternationalPro", "Inter", system-ui, sans-serif;
+  --font-body:    "nbInternationalPro", "Inter", system-ui, sans-serif;
+  --font-serif:   "stkBureauSerif", "Source Serif 4", Georgia, serif;
+  --font-mono:    "geistMono", "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Escala fluida (min -> max) */
+  --fluid-36-60: clamp(2.25rem, 1.5825rem + 2.8479vw, 3.75rem);
+  --fluid-36-50: clamp(2.25rem, 1rem + 2.2479vw, 3.125rem);
+  --fluid-22-40: clamp(1.375rem, 1.1019rem + 1.165vw, 2.5rem);
+  --fluid-20-30: clamp(1.25rem, 1.0983rem + 0.6472vw, 1.875rem);
+  --fluid-18-30: clamp(1.125rem, 0.943rem + 0.7767vw, 1.875rem);
+  --fluid-16-22: clamp(1rem, 0.909rem + 0.3883vw, 1.375rem);
+  --fluid-16-18: clamp(1rem, 0.9697rem + 0.1294vw, 1.125rem);
+  --fluid-14-18: clamp(0.875rem, 0.8143rem + 0.2589vw, 1.125rem);
+  --fluid-14-16: clamp(0.875rem, 0.8447rem + 0.1294vw, 1rem);
+  --fluid-12-16: clamp(0.75rem, 0.6893rem + 0.2589vw, 1rem);
+
+  /* --- Layout --- */
+  --container-padding: 20px;
+  --gutter: 10px;
+  --columns: 12;
+}
+
+/* Fontes locais (arquivos em ../assets/fonts/) */
+@font-face { font-family: "nbInternationalPro"; src: url("../assets/fonts/NBInternationalPro-Light.woff2") format("woff2");   font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "nbInternationalPro"; src: url("../assets/fonts/NBInternationalPro-Regular.woff2") format("woff2"); font-weight: 400 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "stkBureauSerif";     src: url("../assets/fonts/STKBureauSerif-Book.woff2") format("woff2");        font-weight: 300 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "stkBureauSerif";     src: url("../assets/fonts/STKBureauSerif-Medium.woff2") format("woff2");      font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "geistMono";          src: url("../assets/fonts/GeistMono-Variable.woff2") format("woff2");         font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter";              src: url("../assets/fonts/Inter-latin.woff2") format("woff2");                font-weight: 300 700; font-style: normal; font-display: swap; }

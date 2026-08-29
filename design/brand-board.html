@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devin Brand Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#141414; --wash:#191919; --elevated:#1f1f1f;
+  --line:rgba(255,255,255,.08); --line-soft:rgba(255,255,255,.04);
+  --ink:rgba(255,255,255,.9); --ink-2:rgba(255,255,255,.52); --ink-3:rgba(255,255,255,.4);
+  --accent:#49b0ff;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --pad:clamp(20px,4vw,64px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-weight:300; font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 var(--pad)}
+
+/* ---------- header ---------- */
+header{padding:clamp(48px,8vw,104px) 0 clamp(36px,5vw,64px); border-bottom:1px solid var(--line)}
+.mark{display:flex; align-items:center; gap:14px; margin-bottom:36px}
+.mark svg{width:34px; height:34px; color:var(--ink)}
+.mark span{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+h1{
+  font-size:clamp(2.4rem,6vw,4rem); font-weight:300; line-height:1.05; letter-spacing:-.03em;
+  margin:0 0 20px; text-wrap:balance;
+}
+h1 em{font-style:normal; color:var(--accent)}
+.lede{max-width:62ch; font-size:clamp(1rem,2vw,1.15rem); color:var(--ink-2); margin:0 0 32px}
+.meta{display:flex; flex-wrap:wrap; gap:8px 28px; font-family:var(--mono); font-size:12px; color:var(--ink-3)}
+.meta b{color:var(--ink-2); font-weight:400}
+
+/* ---------- sections ---------- */
+section{padding:clamp(44px,6vw,76px) 0; border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 10px;
+}
+h2{font-size:clamp(1.5rem,3.2vw,2.05rem); font-weight:400; letter-spacing:-.02em; margin:0 0 12px; text-wrap:balance}
+h3{font-size:1rem; font-weight:500; letter-spacing:-.01em; margin:36px 0 14px; color:var(--ink)}
+h3:first-of-type{margin-top:26px}
+.note{max-width:64ch; color:var(--ink-2); font-size:.95rem; margin:0 0 6px}
+.note + .note{margin-top:10px}
+
+/* ---------- swatches ---------- */
+.hero-swatches{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-top:30px}
+.hero-swatch{border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--elevated)}
+.hero-swatch .fill{height:132px}
+.hero-swatch .info{padding:14px 16px 16px}
+.hero-swatch .nm{font-size:.95rem; font-weight:500}
+.hero-swatch .rgb{font-family:var(--mono); font-size:11px; color:var(--ink-3); margin-top:2px}
+.hero-swatch .use{font-size:.82rem; color:var(--ink-2); margin-top:10px; line-height:1.45}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(158px,1fr)); gap:10px; margin-top:16px}
+.sw{
+  border:1px solid var(--line); border-radius:3px; background:var(--elevated);
+  cursor:pointer; text-align:left; font:inherit; color:inherit; padding:0; overflow:hidden;
+  transition:border-color .15s, transform .15s;
+}
+.sw:hover{border-color:rgba(255,255,255,.22); transform:translateY(-1px)}
+.sw:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.sw .fill{height:62px; border-bottom:1px solid var(--line-soft); box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.sw .lbl{padding:9px 11px 11px}
+.sw .tok{font-size:.78rem; color:var(--ink-2); line-height:1.35}
+.sw .val{font-family:var(--mono); font-size:11px; color:var(--ink); margin-top:3px; word-break:break-all}
+.checker{background-image:linear-gradient(45deg,#2a2a2a 25%,transparent 25%),linear-gradient(-45deg,#2a2a2a 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a2a 75%),linear-gradient(-45deg,transparent 75%,#2a2a2a 75%); background-size:12px 12px; background-position:0 0,0 6px,6px -6px,-6px 0}
+
+.copyhint{font-family:var(--mono); font-size:11px; color:var(--ink-3); margin-top:18px}
+
+/* ---------- light panel (Cognition) ---------- */
+.light-panel{
+  background:#f7f6f5; color:#000; border-radius:4px; padding:clamp(24px,4vw,44px); margin-top:28px;
+}
+.light-panel h3{color:#000; margin-top:28px}
+.light-panel h3:first-child{margin-top:0}
+.light-panel .serif-demo{font-family:var(--serif); font-size:clamp(1.3rem,3vw,1.8rem); line-height:1.35; margin:0 0 6px; max-width:22ch}
+.light-panel .cap{font-family:var(--mono); font-size:11px; color:#666; letter-spacing:.04em}
+.light-panel .sw{background:#fff; border-color:rgba(0,0,0,.1)}
+.light-panel .sw .tok{color:#555}
+.light-panel .sw .val{color:#000}
+.light-panel .sw .fill{border-bottom-color:rgba(0,0,0,.06); box-shadow:inset 0 0 0 1px rgba(0,0,0,.07)}
+.light-panel .sw:hover{border-color:rgba(0,0,0,.3)}
+
+/* ---------- type specimens ---------- */
+.spec{border:1px solid var(--line); border-radius:3px; padding:22px 24px; margin-top:12px; background:var(--wash)}
+.spec .top{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; margin-bottom:16px}
+.spec .fam{font-size:1rem; font-weight:500}
+.spec .role{font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.06em}
+.spec .lic{font-family:var(--mono); font-size:11px; margin-left:auto; padding:2px 8px; border-radius:2px; white-space:nowrap}
+.lic.free{background:rgba(0,236,126,.1); color:#00ec7e}
+.lic.paid{background:rgba(245,142,58,.12); color:#f58e3a}
+.sample{font-size:clamp(1.4rem,3.4vw,2rem); line-height:1.25; letter-spacing:-.02em; margin:0 0 8px}
+.sample.mono{font-family:var(--mono); font-size:clamp(1.05rem,2.4vw,1.35rem); letter-spacing:0}
+.sample.serif{font-family:var(--serif)}
+.alpha{font-family:var(--mono); font-size:11px; color:var(--ink-3); word-break:break-all}
+.swap{margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft); font-size:.85rem; color:var(--ink-2)}
+.swap b{color:var(--accent); font-weight:500}
+
+/* ---------- scale ---------- */
+.scale{margin-top:20px; border-top:1px solid var(--line-soft)}
+.scale-row{display:flex; align-items:baseline; gap:18px; padding:11px 0; border-bottom:1px solid var(--line-soft)}
+.scale-row .t{font-family:var(--mono); font-size:11px; color:var(--ink-3); width:78px; flex:none}
+.scale-row .d{color:var(--ink); letter-spacing:-.02em; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.scale-row .u{font-size:.8rem; color:var(--ink-2); flex:none; text-align:right}
+
+/* ---------- assets ---------- */
+.logo-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-top:20px}
+.logo-card{border:1px solid var(--line); border-radius:3px; overflow:hidden}
+.logo-card .stage{height:112px; display:flex; align-items:center; justify-content:center; padding:20px}
+.logo-card .stage.dark{background:#0d0d0d}
+.logo-card .stage.light{background:#f7f6f5}
+.logo-card img{max-width:100%; max-height:100%; object-fit:contain}
+.logo-card .cap{padding:10px 12px; font-family:var(--mono); font-size:10.5px; color:var(--ink-3); border-top:1px solid var(--line); word-break:break-all; line-height:1.5}
+
+.wall{display:grid; grid-template-columns:repeat(auto-fill,minmax(124px,1fr)); margin-top:20px; border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--ground)}
+.wall figure{margin:0; aspect-ratio:2/1; display:flex; align-items:center; justify-content:center; padding:16px; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft)}
+.wall img{max-width:100%; max-height:100%; object-fit:contain; filter:invert(1); opacity:.72; transition:opacity .15s}
+.wall figure:hover img{opacity:1}
+
+.shots{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; margin-top:20px}
+.shot{border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--wash)}
+.shot .frame{aspect-ratio:16/10; background:#0d0d0d; display:flex; align-items:center; justify-content:center; overflow:hidden}
+.shot img{width:100%; height:100%; object-fit:cover; object-position:top center}
+.shot .cap{padding:9px 11px; border-top:1px solid var(--line)}
+.shot .fn{font-family:var(--mono); font-size:10.5px; color:var(--ink-2); word-break:break-all}
+.shot .dim{font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:2px}
+
+/* ---------- table ---------- */
+.tablewrap{overflow-x:auto; margin-top:20px; border:1px solid var(--line); border-radius:3px}
+table{border-collapse:collapse; width:100%; min-width:520px; font-size:.88rem}
+th,td{text-align:left; padding:11px 16px; border-bottom:1px solid var(--line-soft)}
+th{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:400; background:var(--wash)}
+tr:last-child td{border-bottom:none}
+td.path{font-family:var(--mono); font-size:11.5px; color:var(--ink-2)}
+td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink-2)}
+
+/* ---------- recipes ---------- */
+.recipes{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:24px}
+.recipe{border:1px solid var(--line); border-radius:3px; overflow:hidden}
+.recipe .demo{padding:26px 24px 28px}
+.recipe .demo.dark{background:#141414}
+.recipe .demo.light{background:#f7f6f5}
+.recipe .demo .rt{font-size:1.5rem; letter-spacing:-.02em; line-height:1.15; margin:0 0 8px}
+.recipe .demo .rb{font-size:.9rem; line-height:1.5; margin:0 0 16px}
+.recipe .demo.dark .rt{color:rgba(255,255,255,.9)}
+.recipe .demo.dark .rb{color:rgba(255,255,255,.52)}
+.recipe .demo.light .rt{color:#000; font-family:var(--sans)}
+.recipe .demo.light .rb{color:#444; font-family:var(--serif)}
+.pill{display:inline-block; font-family:var(--mono); font-size:11px; padding:5px 11px; border-radius:2px}
+.recipe .spec-list{padding:14px 16px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--ink-2); line-height:1.9}
+.dot{display:inline-block; width:9px; height:9px; border-radius:50%; vertical-align:baseline; margin-right:6px}
+
+/* ---------- footer ---------- */
+footer{padding:44px 0 72px; color:var(--ink-3); font-size:.85rem}
+footer a{color:var(--ink-2)}
+.toast{
+  position:fixed; left:50%; bottom:28px; transform:translate(-50%,14px);
+  background:var(--elevated); border:1px solid var(--line); color:var(--ink);
+  font-family:var(--mono); font-size:12px; padding:9px 16px; border-radius:3px;
+  opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:9;
+}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="mark">
+    <svg viewBox="0 0 425 425" fill="none" aria-hidden="true"><path d="M70 159.333V91.3471C70 88.3592 71.594 85.5983 74.1816 84.1044L133.043 50.1205C135.631 48.6265 138.819 48.6265 141.407 50.1205L200.269 84.1044C202.856 85.5983 204.45 88.3592 204.45 91.3471V126.068C204.708 137.606 210.806 148.734 221.531 154.926C232.256 161.117 244.942 160.834 255.063 155.289L285.132 137.929C287.719 136.435 290.907 136.435 293.495 137.929L352.357 171.913C354.944 173.406 356.538 176.167 356.538 179.155V247.123C356.538 250.111 354.944 252.872 352.357 254.366L293.495 288.35C290.907 289.844 287.719 289.844 285.132 288.35L255.306 271.13C245.146 265.456 232.344 265.117 221.534 271.358C210.809 277.55 204.711 288.678 204.453 300.215V334.926C204.453 337.914 202.859 340.675 200.271 342.169L141.41 376.153C138.822 377.647 135.634 377.647 133.046 376.153L74.1845 342.169C71.5969 340.675 70.0028 337.914 70.0028 334.926V266.959C70.0029 263.971 71.5969 261.21 74.1845 259.716L133.046 225.732C135.634 224.238 138.822 224.238 141.41 225.732L171.547 243.132C181.656 248.638 194.306 248.906 205.005 242.729C215.815 236.488 221.922 225.231 222.088 213.595C221.83 202.057 215.732 189.737 205.008 183.545C194.283 177.353 181.597 177.636 171.476 183.181L141.269 200.72C138.67 202.229 135.461 202.228 132.864 200.716L74.1576 166.562C71.5835 165.065 70 162.311 70 159.333Z" fill="currentColor"></path></svg>
+    <span>Devin &middot; Cognition &middot; Brand Board</span>
+  </div>
+  <h1>Tudo que você precisa<br>pro <em>deck</em>.</h1>
+  <p class="lede">Cores, fontes, logos e imagens extraídos direto de devin.ai, cognition.com e da página oficial de marca. Clique em qualquer cor para copiar o hex.</p>
+  <div class="meta">
+    <span><b>Extraído</b> 29 ago 2026</span>
+    <span><b>Fontes</b> devin.ai · cognition.com · old.cognition.ai/brand</span>
+    <span><b>Arquivos</b> 90+ em ./assets</span>
+  </div>
+</header>
+
+<!-- ============ PALETA OFICIAL ============ -->
+<section>
+  <p class="eyebrow">01 — Paleta oficial</p>
+  <h2>As três cores que a Cognition publica</h2>
+  <p class="note">Estas são as únicas cores declaradas publicamente como <em>Devin Color Palette</em>. Se o deck precisa ser defensável perante a marca, comece por aqui.</p>
+  <div class="hero-swatches">
+    <div class="hero-swatch">
+      <div class="fill" style="background:#3969CA"></div>
+      <div class="info">
+        <div class="nm">Purple</div>
+        <div class="rgb">#3969CA &middot; rgb(57,105,202)</div>
+        <div class="use">Cor primária. Títulos de destaque, primeira série de gráfico. Apesar do nome, é um azul-índigo.</div>
+      </div>
+    </div>
+    <div class="hero-swatch">
+      <div class="fill" style="background:#21C19A"></div>
+      <div class="info">
+        <div class="nm">Green</div>
+        <div class="rgb">#21C19A &middot; rgb(33,193,154)</div>
+        <div class="use">Positivo. Ganhos, métricas de melhoria, checks.</div>
+      </div>
+    </div>
+    <div class="hero-swatch">
+      <div class="fill" style="background:#0294DE"></div>
+      <div class="info">
+        <div class="nm">Blue</div>
+        <div class="rgb">#0294DE &middot; rgb(2,148,222)</div>
+        <div class="use">Apoio. Links, segunda série de gráfico.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SISTEMA DEVIN ============ -->
+<section>
+  <p class="eyebrow">02 — Sistema real do produto</p>
+  <h2>devin.ai roda em tema escuro</h2>
+  <p class="note">O site é dark-first. Estes são os tokens reais que o produto usa — se o deck for escuro, esta é a cara certa. O texto não é branco puro: é branco com opacidade, o que dá a hierarquia suave característica da marca.</p>
+
+  <h3>Fundos</h3>
+  <div class="grid" id="g-bg"></div>
+
+  <h3>Texto</h3>
+  <div class="grid" id="g-text"></div>
+
+  <h3>Acentos e semânticas</h3>
+  <div class="grid" id="g-accent"></div>
+
+  <h3>Bordas e tints</h3>
+  <div class="grid" id="g-tint"></div>
+
+  <p class="copyhint">Clique em qualquer amostra para copiar o valor.</p>
+</section>
+
+<!-- ============ COGNITION ============ -->
+<section>
+  <p class="eyebrow">03 — Cognition</p>
+  <h2>O institucional foi para o claro</h2>
+  <p class="note">A cognition.com hoje é o oposto do devin.ai: off-white quente, preto puro, e corpo em serifada. Se o deck for institucional em vez de produto, este é o registro certo.</p>
+
+  <div class="light-panel">
+    <h3>cognition.com — hoje</h3>
+    <p class="serif-demo">Cognition operates Devin, the first autonomous software engineer.</p>
+    <p class="cap">STK Bureau Serif sobre #F7F6F5 — aqui simulado com Source Serif 4</p>
+    <div class="grid" id="g-cog"></div>
+
+    <h3>old.cognition.ai — legado</h3>
+    <p class="cap" style="margin-bottom:14px">Paleta azul-acinzentada do site anterior. Útil se o deck precisar de uma escala neutra fria mais ampla.</p>
+    <div class="grid" id="g-legacy"></div>
+  </div>
+</section>
+
+<!-- ============ TIPOGRAFIA ============ -->
+<section>
+  <p class="eyebrow">04 — Tipografia</p>
+  <h2>Duas fontes da marca são pagas</h2>
+  <p class="note">NB International Pro e STK Bureau Serif são comerciais. Os arquivos <code>.woff2</code> em <code>assets/fonts/</code> são os subsets que os próprios sites servem — ótimos como referência visual, mas não instale nem distribua num deck externo sem licença. As substitutas abaixo são grátis e seguram bem o visual.</p>
+
+  <div class="spec">
+    <div class="top"><span class="fam">NB International Pro</span><span class="role">devin.ai — títulos e corpo</span><span class="lic paid">Comercial · Neubau</span></div>
+    <p class="sample">Devin, the AI software engineer</p>
+    <p class="alpha">Light 300 · Regular 400 — assets/fonts/NBInternationalPro-{Light,Regular}.woff2</p>
+    <p class="swap">Substituta grátis: <b>Inter</b> — grotesca neutra, largura e altura-x muito próximas. É a fonte em que este texto está renderizado.</p>
+  </div>
+
+  <div class="spec">
+    <div class="top"><span class="fam">STK Bureau Serif</span><span class="role">cognition.com — corpo</span><span class="lic paid">Comercial</span></div>
+    <p class="sample serif">The first autonomous software engineer</p>
+    <p class="alpha">Book 400 · Medium 600 — assets/fonts/STKBureauSerif-{Book,Medium}.woff2</p>
+    <p class="swap">Substituta grátis: <b>Source Serif 4</b> (ou Lora) — serifada de texto com o mesmo peso editorial.</p>
+  </div>
+
+  <div class="spec">
+    <div class="top"><span class="fam">Geist Mono</span><span class="role">devin.ai + cognition.com — código</span><span class="lic free">Grátis · OFL</span></div>
+    <p class="sample mono">devin run --repo monorepo</p>
+    <p class="alpha">Regular 400 · Variable 100–900 — assets/fonts/GeistMono-{Regular,Variable}.woff2</p>
+    <p class="swap">Já é livre. Pode usar direto no deck. Alternativa: <b>IBM Plex Mono</b> — a mono do site legado, renderizada aqui.</p>
+  </div>
+
+  <div class="spec">
+    <div class="top"><span class="fam">IBM Plex Sans / Condensed / Mono &middot; Merriweather</span><span class="role">old.cognition.ai — legado</span><span class="lic free">Grátis · OFL</span></div>
+    <p class="sample" style="font-family:var(--mono); font-size:clamp(1.1rem,2.4vw,1.4rem)">Todas livres para uso comercial</p>
+    <p class="alpha">11 arquivos em assets/fonts/ — IBMPlexSans, IBMPlexSansCond, IBMPlexMono, Merriweather</p>
+    <p class="swap">Se quiser um deck 100% licenciado sem instalar nada novo, esta família cobre título, corpo e código sozinha.</p>
+  </div>
+
+  <h3>Escala tipográfica do devin.ai</h3>
+  <p class="note">O site usa tipografia fluida. Para slide (16:9, 1920px), use sempre o valor máximo de cada faixa.</p>
+  <div class="scale" id="scale"></div>
+</section>
+
+<!-- ============ LOGOS ============ -->
+<section>
+  <p class="eyebrow">05 — Logos</p>
+  <h2>Lockups oficiais em alta</h2>
+  <p class="note">Baixados da página de marca da Cognition. O lockup branco do Devin tem 10211&times;4854 px — dá para ocupar um slide inteiro sem perder nitidez.</p>
+  <div class="logo-row">
+    <div class="logo-card"><div class="stage dark"><img src="assets/logos/lockups/Devin_PrimaryLockup_White.png" alt="Lockup Devin branco"></div><div class="cap">Devin_PrimaryLockup_White.png · 10211×4854</div></div>
+    <div class="logo-card"><div class="stage light"><img src="assets/logos/lockups/Devin_PrimaryLockup_Black.png" alt="Lockup Devin preto"></div><div class="cap">Devin_PrimaryLockup_Black.png · 2554×1214</div></div>
+    <div class="logo-card"><div class="stage dark"><img src="assets/logos/lockups/Cognition_PrimaryLockup_White.png" alt="Lockup Cognition branco"></div><div class="cap">Cognition_PrimaryLockup_White.png · 1440×600</div></div>
+    <div class="logo-card"><div class="stage light"><img src="assets/logos/lockups/Cognition_PrimaryLockup_Black.png" alt="Lockup Cognition preto"></div><div class="cap">Cognition_PrimaryLockup_Black.png · 1440×600</div></div>
+    <div class="logo-card"><div class="stage dark"><img src="assets/logos/lockups/Windsurf_PrimaryLockup_White.png" alt="Lockup Windsurf branco"></div><div class="cap">Windsurf_PrimaryLockup_White.png · 2984×944</div></div>
+    <div class="logo-card"><div class="stage light"><img src="assets/logos/lockups/Windsurf_PrimaryLockup_Black.png" alt="Lockup Windsurf preto"></div><div class="cap">Windsurf_PrimaryLockup_Black.png · 8096×2562</div></div>
+  </div>
+  <p class="copyhint">Também disponíveis em SVG e avatar quadrado em <code>[External] Cognition Press Kit/</code>.</p>
+</section>
+
+<!-- ============ CLIENTES ============ -->
+<section>
+  <p class="eyebrow">06 — Prova social</p>
+  <h2>25 logos de clientes, em vetor</h2>
+  <p class="note">Extraídos da vitrine do devin.ai. Todos vêm no mesmo viewBox 196&times;95, o que faz uma logo wall alinhar sem retrabalho. São marcas de terceiros — use sem alterar cor ou proporção.</p>
+  <div class="wall" id="wall"></div>
+</section>
+
+<!-- ============ PRODUTO ============ -->
+<section>
+  <p class="eyebrow">07 — Imagens de produto</p>
+  <h2>UI real do Devin</h2>
+  <p class="note">Screenshots e renders que o próprio site usa. O hero em 2600&times;1500 e os cards bento em 1288 px de largura aguentam projeção sem pixelar.</p>
+  <div class="shots" id="shots"></div>
+</section>
+
+<!-- ============ CAPTURAS ============ -->
+<section>
+  <p class="eyebrow">08 — Páginas inteiras</p>
+  <h2>Capturas de referência</h2>
+  <p class="note">Páginas completas, para recortar seções ou consultar layout enquanto monta o slide.</p>
+  <div class="shots">
+    <div class="shot"><div class="frame"><img src="assets/web-captures/devin-home-fullpage.png" alt="Home do devin.ai"></div><div class="cap"><div class="fn">devin-home-fullpage.png</div><div class="dim">1585×8891</div></div></div>
+    <div class="shot"><div class="frame"><img src="assets/web-captures/devin-pricing-fullpage.png" alt="Página de preços do Devin"></div><div class="cap"><div class="fn">devin-pricing-fullpage.png</div><div class="dim">1585×5517</div></div></div>
+    <div class="shot"><div class="frame"><img src="assets/web-captures/cognition-home-fullpage.png" alt="Home da cognition.com"></div><div class="cap"><div class="fn">cognition-home-fullpage.png</div><div class="dim">1585×1866</div></div></div>
+  </div>
+</section>
+
+<!-- ============ RECEITAS ============ -->
+<section>
+  <p class="eyebrow">09 — Receitas</p>
+  <h2>Dois decks possíveis</h2>
+  <p class="note">Escolha um registro e mantenha. Misturar o escuro do produto com o claro do institucional no mesmo deck costuma parecer erro, não variedade.</p>
+  <div class="recipes">
+    <div class="recipe">
+      <div class="demo dark">
+        <p class="rt">Devin, the AI<br>software engineer</p>
+        <p class="rb">Parallel cloud agents for serious engineering teams.</p>
+        <span class="pill" style="background:#4489ff; color:#fff">Try Devin</span>
+      </div>
+      <div class="spec-list">
+        <div><span class="dot" style="background:#141414; box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"></span>fundo #141414</div>
+        <div><span class="dot" style="background:rgba(255,255,255,.9)"></span>título branco 90%</div>
+        <div><span class="dot" style="background:rgba(255,255,255,.52)"></span>corpo branco 52%</div>
+        <div><span class="dot" style="background:#49b0ff"></span>acento #49B0FF</div>
+        <div>logo Devin_PrimaryLockup_White</div>
+        <div>fonte Inter 300/400</div>
+      </div>
+    </div>
+    <div class="recipe">
+      <div class="demo light">
+        <p class="rt">Cognition operates Devin</p>
+        <p class="rb">The first autonomous software engineer.</p>
+        <span class="pill" style="background:#3969ca; color:#fff">Get a demo</span>
+      </div>
+      <div class="spec-list">
+        <div><span class="dot" style="background:#f7f6f5"></span>fundo #F7F6F5</div>
+        <div><span class="dot" style="background:#000; box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"></span>texto #000000</div>
+        <div><span class="dot" style="background:#3969ca"></span>acento #3969CA</div>
+        <div><span class="dot" style="background:#21c19a"></span>apoio #21C19A / #0294DE</div>
+        <div>logo Cognition_PrimaryLockup_Black</div>
+        <div>Inter títulos + Source Serif 4 corpo</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Ordem das séries em gráficos</h3>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))" id="series"></div>
+</section>
+
+<!-- ============ INVENTÁRIO ============ -->
+<section>
+  <p class="eyebrow">10 — Inventário</p>
+  <h2>Onde está cada coisa</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Pasta</th><th>Conteúdo</th><th>Qtd</th></tr></thead>
+      <tbody>
+        <tr><td class="path">assets/fonts/</td><td>Todas as fontes dos dois sites (.woff2 / .ttf)</td><td class="num">19</td></tr>
+        <tr><td class="path">assets/logos/lockups/</td><td>Lockups oficiais Devin, Cognition e Windsurf (PNG alta)</td><td class="num">6</td></tr>
+        <tr><td class="path">assets/logos/customers/</td><td>Logos de clientes em SVG</td><td class="num">25</td></tr>
+        <tr><td class="path">assets/logos/</td><td>devin-wordmark.svg — o símbolo do header</td><td class="num">1</td></tr>
+        <tr><td class="path">assets/icons/</td><td>Ícones de UI em SVG</td><td class="num">16</td></tr>
+        <tr><td class="path">assets/product/</td><td>Hero, cards bento, integrações, card social</td><td class="num">20</td></tr>
+        <tr><td class="path">assets/web-captures/</td><td>Screenshots de página inteira</td><td class="num">3</td></tr>
+        <tr><td class="path">tokens/</td><td>devin-tokens.css · cognition-tokens.css · devin-colors.json</td><td class="num">3</td></tr>
+        <tr><td class="path">[External] Cognition Press Kit/</td><td>Press kit oficial: SVGs, avatares, stickers, wallpaper .pptx</td><td class="num">24</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="copyhint">Documentos: BRAND-GUIDE.md (referência completa) · COPY-DECK.md (textos, preços e clientes para os slides).</p>
+</section>
+
+<footer>
+  Extraído em 29 de agosto de 2026 de <a href="https://devin.ai">devin.ai</a>, <a href="https://cognition.com">cognition.com</a> e <a href="https://cognition.ai/brand">cognition.ai/brand</a>.
+  Marcas e logos pertencem à Cognition AI e aos respectivos titulares.
+</footer>
+
+</div>
+
+<div class="toast" id="toast">copiado</div>
+
+<script>
+const swatches = {
+  'g-bg': [
+    ['bg-page','#141414','#141414'], ['bg-wash','#191919','#191919'],
+    ['bg-elevated','#1F1F1F','#1F1F1F'], ['bg-accent-neutral','#F9F9F9','#F9F9F9'],
+    ['bg-scrim','rgba(0,0,0,.32)','rgba(0,0,0,.32)']
+  ],
+  'g-text': [
+    ['text-primary','rgba(255,255,255,.9)','rgba(255,255,255,.9)'],
+    ['text-secondary','rgba(255,255,255,.52)','rgba(255,255,255,.52)'],
+    ['text-muted','rgba(255,255,255,.4)','rgba(255,255,255,.4)'],
+    ['text-strong','#FFFFFF','#FFFFFF'],
+    ['text-always-black','#0D0F0D','#0D0F0D']
+  ],
+  'g-accent': [
+    ['text-accent-primary','#49B0FF','#49B0FF'], ['bg-accent-primary','#4489FF','#4489FF'],
+    ['text-link','#3EB8ED','#3EB8ED'], ['text-green','#00EC7E','#00EC7E'],
+    ['text-red','#F53B3A','#F53B3A'], ['text-purple','#956CDE','#956CDE'],
+    ['text-orange','#F58E3A','#F58E3A'], ['text-blue','#337DF4','#337DF4']
+  ],
+  'g-tint': [
+    ['border-primary','rgba(255,255,255,.08)','rgba(255,255,255,.08)'],
+    ['border-secondary','rgba(255,255,255,.04)','rgba(255,255,255,.04)'],
+    ['tint-secondary','rgba(255,255,255,.05)','rgba(255,255,255,.05)'],
+    ['tint-tertiary','rgba(255,255,255,.03)','rgba(255,255,255,.03)'],
+    ['tint-faint','rgba(255,255,255,.015)','rgba(255,255,255,.015)']
+  ],
+  'g-cog': [
+    ['fundo','#F7F6F5','#F7F6F5'], ['texto','#000000','#000000'],
+    ['input bg','rgba(0,0,0,.031)','rgba(0,0,0,.031)']
+  ],
+  'g-legacy': [
+    ['dark-01','#0F131C','#0F131C'], ['dark-02','#1F283B','#1F283B'], ['dark-03','#364363','#364363'],
+    ['grey-02','#7B8397','#7B8397'], ['grey-01','#CDD3E1','#CDD3E1'],
+    ['light-02','#EAF0F9','#EAF0F9'], ['light-01','#F2F5FA','#F2F5FA'],
+    ['accent-01','#9EAEE9','#9EAEE9'], ['accent-02','#A2D1CE','#A2D1CE'], ['error','#FA5050','#FA5050']
+  ],
+  'series': [
+    ['série 1','#3969CA','#3969CA'], ['série 2','#21C19A','#21C19A'], ['série 3','#0294DE','#0294DE'],
+    ['série 4','#956CDE','#956CDE'], ['série 5','#F58E3A','#F58E3A'], ['série 6','#F53B3A','#F53B3A']
+  ]
+};
+
+for (const [id, list] of Object.entries(swatches)) {
+  const host = document.getElementById(id);
+  if (!host) continue;
+  host.innerHTML = list.map(([tok, val, css]) => {
+    const translucent = css.startsWith('rgba');
+    return `<button class="sw" data-copy="${val}">
+      <div class="fill${translucent ? ' checker' : ''}" style="background:${css}"></div>
+      <div class="lbl"><div class="tok">${tok}</div><div class="val">${val}</div></div>
+    </button>`;
+  }).join('');
+}
+
+const scale = [
+  ['36 → 60','Hero do deck','Devin, the AI software engineer','3.75rem'],
+  ['36 → 50','Título de seção','Build with Devin','3.125rem'],
+  ['22 → 40','Subtítulo grande','Able to work with hundreds of tools','2.5rem'],
+  ['20 → 30','Título de card','Multi-week, multi-repo projects','1.875rem'],
+  ['16 → 22','Lead / intro','Built for engineering teams','1.375rem'],
+  ['16 → 18','Corpo','Devin ships PRs the way your team does','1.125rem'],
+  ['14 → 16','Legenda','Assign Devin tickets directly in Linear','1rem'],
+  ['12 → 16','Nota de rodapé','Fonte: devin.ai, agosto 2026','.875rem']
+];
+document.getElementById('scale').innerHTML = scale.map(([t, u, d, size]) =>
+  `<div class="scale-row"><div class="t">${t}</div><div class="d" style="font-size:${size}">${d}</div><div class="u">${u}</div></div>`
+).join('');
+
+const customers = ['citi','mercedes-benz','goldman-sachs','lowe-s','u-s-army','at-t','fox','elevance-health','rivian','wayfair','cisco','infosys','u-s-navy','anduril','dell','itau','santander','cognizant','intact','nu','modal','bny','exa','nasa','servicenow'];
+document.getElementById('wall').innerHTML = customers.map(c =>
+  `<figure><img src="assets/logos/customers/${c}.svg" alt="${c}" loading="lazy"></figure>`
+).join('');
+
+const shots = [
+  ['hero_new.webp','2600×1500','Hero principal'],
+  ['bento01.png','1288×722','Card — conhecimento'],
+  ['bento03.png','1288×904','Card — time de Devins'],
+  ['work-team-collaborate.png','1288×844','Automação e tickets'],
+  ['integration01.png','1636×756','Grade de integrações'],
+  ['integration02.png','1636×756','Grade de integrações'],
+  ['integration03.png','1636×756','Grade de integrações'],
+  ['hero_usecase_1.webp','870×616','Caso de uso — release notes'],
+  ['hero_usecase_2.webp','870×622','Caso de uso — code diff'],
+  ['hero_usecase_3.webp','846×650','Caso de uso — Slack triage'],
+  ['devin-og-card.png','1200×630','Card social pronto'],
+  ['hero_new_mobile.webp','1218×2056','Hero vertical']
+];
+document.getElementById('shots').innerHTML = shots.map(([fn, dim, cap]) =>
+  `<div class="shot"><div class="frame"><img src="assets/product/${fn}" alt="${cap}" loading="lazy"></div>
+   <div class="cap"><div class="fn">${fn}</div><div class="dim">${dim} · ${cap}</div></div></div>`
+).join('');
+
+const toast = document.getElementById('toast');
+let toastTimer;
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-copy]');
+  if (!btn) return;
+  const val = btn.dataset.copy;
+  navigator.clipboard?.writeText(val).then(() => {
+    toast.textContent = val + '  copiado';
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 1400);
+  }).catch(() => {});
+});
+</script>
+
+</body>
+</html>

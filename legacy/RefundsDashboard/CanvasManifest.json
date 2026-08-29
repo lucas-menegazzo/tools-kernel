@@ -1,0 +1,29 @@
+{
+  "FormatVersion": "0.24",
+  "Header": {
+    "DocVersion": "1.331",
+    "MinVersionToLoad": "1.317",
+    "MSAppStructureVersion": "2.0",
+    "LastSavedDateTimeUTC": "2026-05-02T19:41:12.000Z"
+  },
+  "Properties": {
+    "Id": "b41d7e02-5a6c-4913-9f27-e08b3d1c7a55",
+    "Name": "Refunds Dashboard",
+    "FileID": "refunds-dashboard",
+    "AppCreationSource": "AppFromScratch",
+    "AppDescription": "Painel de devolucoes. Operacoes.",
+    "Author": "ops-tools@thefintechcompany.com.br",
+    "DefaultConnectedDataSourceMaxGetRowsCount": 500,
+    "DocumentAppType": "DesktopOrTablet",
+    "DocumentLayoutWidth": 1366,
+    "DocumentLayoutHeight": 768,
+    "EnableOnStart": true,
+    "ErrorHandlingMode": "Classic"
+  },
+  "PublishInfo": {
+    "AppName": "Refunds Dashboard",
+    "Environment": "The Fintech Company (default)",
+    "LastPublishedDateTimeUTC": "2026-05-02T19:44:30.000Z"
+  },
+  "ScreenOrder": ["RefundsScreen"]
+}

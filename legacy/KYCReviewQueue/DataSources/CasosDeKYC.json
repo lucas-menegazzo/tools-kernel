@@ -1,0 +1,16 @@
+{
+  "DataEntityMetadataJson": {
+    "Casos de KYC": {
+      "entitySetName": "cr8a2_casodekycs",
+      "logicalName": "cr8a2_casodekyc",
+      "primaryKey": "cr8a2_casodekycid",
+      "primaryNameField": "cr8a2_numerodocaso",
+      "isTableReadOnly": false
+    }
+  },
+  "Name": "Casos de KYC",
+  "Type": "NativeCDSDataSourceInfo",
+  "DatasetName": "org8a2c1f4b.crm2.dynamics.com",
+  "TableName": "cr8a2_casodekyc",
+  "ApiId": "/providers/microsoft.powerapps/apis/shared_commondataserviceforapps"
+}

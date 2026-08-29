@@ -1,0 +1,16 @@
+{
+  "DataEntityMetadataJson": {
+    "Devolucoes": {
+      "entitySetName": "cr8a2_devolucaos",
+      "logicalName": "cr8a2_devolucao",
+      "primaryKey": "cr8a2_devolucaoid",
+      "primaryNameField": "cr8a2_numero",
+      "isTableReadOnly": false
+    }
+  },
+  "Name": "Devolucoes",
+  "Type": "NativeCDSDataSourceInfo",
+  "DatasetName": "org8a2c1f4b.crm2.dynamics.com",
+  "TableName": "cr8a2_devolucao",
+  "ApiId": "/providers/microsoft.powerapps/apis/shared_commondataserviceforapps"
+}

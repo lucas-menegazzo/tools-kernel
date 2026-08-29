@@ -1,0 +1,66 @@
+/* ============================================================
+   Cognition — design tokens
+   cognition.com (atual, tema claro editorial)
+   + old.cognition.ai (legado, paleta azul-acinzentada)
+   Extraído em 2026-08-29.
+   ============================================================ */
+
+/* --- cognition.com hoje --- */
+:root {
+  --cog-bg:   #F7F6F5;  /* off-white quente */
+  --cog-text: #000000;
+
+  --cog-font-heading: "nbInternational", "Inter", system-ui, sans-serif;
+  --cog-font-body:    "stkBureauSerif", "Source Serif 4", Georgia, serif;
+  --cog-font-mono:    "GeistMono", "IBM Plex Mono", ui-monospace, monospace;
+
+  --cog-form-input-bg:       rgba(0, 0, 0, 0.031);
+  --cog-form-input-bg-hover: rgba(0, 0, 0, 0.051);
+  --cog-container-padding: 20px;
+  --cog-sidebar-offset: 18px;
+}
+
+/* --- old.cognition.ai (legado) --- */
+:root {
+  --color-dark-01:  #0F131C;
+  --color-dark-02:  #1F283B;
+  --color-dark-03:  #364363;
+  --color-light-01: #F2F5FA;
+  --color-light-02: #EAF0F9;
+  --color-grey-01:  #CDD3E1;
+  --color-grey-02:  #7B8397;
+  --color-accent-01: #9EAEE9;
+  --color-accent-02: #A2D1CE;
+  --color-error:     #FA5050;
+
+  --color-gradient-01: linear-gradient(to right, #7485CA 0%, #81B7D4 46%, #85C4C0 100%);
+  --color-gradient-02: linear-gradient(to left,  #83BCCC 0%, #85C3C0 100%);
+
+  /* tipografia do legado */
+  --legacy-font-heading: "IBM Plex Sans Condensed", sans-serif;
+  --legacy-font-body:    "IBM Plex Sans", sans-serif;
+  --legacy-font-mono:    "IBM Plex Mono", monospace;
+  --legacy-font-serif:   "Merriweather", Georgia, serif;
+
+  /* escala fluida do legado */
+  --fluid-22-78: clamp(1.375rem, 0.875rem + 2.5vw, 4.875rem);
+  --fluid-20-30: clamp(1.25rem, 1.0983rem + 0.6472vw, 1.875rem);
+  --fluid-18-30: clamp(1.125rem, 0.943rem + 0.7767vw, 1.875rem);
+  --fluid-16-22: clamp(1rem, 0.909rem + 0.3883vw, 1.375rem);
+  --fluid-14-16: clamp(0.875rem, 0.8447rem + 0.1294vw, 1rem);
+  --fluid-12-16: clamp(0.75rem, 0.7143rem + 0.1786vw, 1rem);
+  --fluid-10-14: clamp(0.625rem, 0.5893rem + 0.1786vw, 0.875rem);
+}
+
+/* Fontes locais (arquivos em ../assets/fonts/) */
+@font-face { font-family: "nbInternational"; src: url("../assets/fonts/NBInternationalPro-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "stkBureauSerif";  src: url("../assets/fonts/STKBureauSerif-Book.woff2") format("woff2");   font-weight: 400; font-display: swap; }
+@font-face { font-family: "stkBureauSerif";  src: url("../assets/fonts/STKBureauSerif-Medium.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "GeistMono";       src: url("../assets/fonts/GeistMono-Variable.woff2") format("woff2");    font-weight: 100 900; font-display: swap; }
+
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/IBMPlexSans-Light.woff2") format("woff2");   font-weight: 300; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/IBMPlexSans-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../assets/fonts/IBMPlexSans-Medium.woff2") format("woff2");  font-weight: 500; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans Condensed"; src: url("../assets/fonts/IBMPlexSansCond-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../assets/fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Merriweather";  src: url("../assets/fonts/Merriweather-Regular.woff2") format("woff2"); font-weight: 500; font-display: swap; }

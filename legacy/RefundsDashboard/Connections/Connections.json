@@ -1,0 +1,18 @@
+{
+  "shared_commondataserviceforapps_1": {
+    "connectionRef": {
+      "id": "/providers/microsoft.powerapps/apis/shared_commondataserviceforapps",
+      "displayName": "Microsoft Dataverse",
+      "dataSources": ["Devolucoes", "Usuarios"],
+      "tier": "Premium"
+    }
+  },
+  "shared_office365users_1": {
+    "connectionRef": {
+      "id": "/providers/microsoft.powerapps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": ["Office365Users"],
+      "tier": "Standard"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "source": "devin.ai + old.cognition.ai/brand",
+  "extracted": "2026-08-29",
+  "brandPalette": {
+    "_note": "Paleta oficial publicada em cognition.ai/brand como 'Devin Color Palette'",
+    "purple": { "hex": "#3969CA", "rgb": [57, 105, 202] },
+    "green":  { "hex": "#21C19A", "rgb": [33, 193, 154] },
+    "blue":   { "hex": "#0294DE", "rgb": [2, 148, 222] }
+  },
+  "devinSite": {
+    "_note": "Design tokens reais do devin.ai (tema escuro)",
+    "background": {
+      "page": "#141414",
+      "wash": "#191919",
+      "elevated": "#1F1F1F",
+      "accentNeutral": "#F9F9F9",
+      "scrim": "rgba(0,0,0,0.32)"
+    },
+    "text": {
+      "primary": "rgba(255,255,255,0.90)",
+      "secondary": "rgba(255,255,255,0.52)",
+      "muted": "rgba(255,255,255,0.40)",
+      "disabled": "rgba(255,255,255,0.40)",
+      "strong": "#FFFFFF",
+      "alwaysBlack": "#0D0F0D",
+      "alwaysWhite": "#FFFFFF"
+    },
+    "accent": {
+      "primary": "#49B0FF",
+      "primaryBg": "#4489FF",
+      "secondaryBg": "rgba(21,107,255,0.08)"
+    },
+    "semantic": {
+      "green": "#00EC7E",
+      "red": "#F53B3A",
+      "purple": "#956CDE",
+      "orange": "#F58E3A",
+      "blue": "#337DF4",
+      "link": "#3EB8ED"
+    },
+    "semanticBackgrounds": {
+      "green": "rgba(0,236,126,0.08)",
+      "red": "rgba(245,59,58,0.12)",
+      "purple": "rgba(149,108,222,0.12)",
+      "orange": "rgba(245,142,58,0.08)",
+      "blue": "rgba(51,125,244,0.10)",
+      "link": "rgba(62,184,237,0.08)"
+    },
+    "border": {
+      "primary": "rgba(255,255,255,0.08)",
+      "secondary": "rgba(255,255,255,0.04)",
+      "accentPrimary": "#49B0FF"
+    },
+    "tint": {
+      "primary": "rgba(255,255,255,0.08)",
+      "secondary": "rgba(255,255,255,0.05)",
+      "tertiary": "rgba(255,255,255,0.03)",
+      "faint": "rgba(255,255,255,0.015)",
+      "accentSecondary": "rgba(68,137,255,0.05)"
+    },
+    "shadow": {
+      "L1": "0px 1px 2px 0px rgba(0,0,0,0.2)",
+      "L2": "0px 1px 3px 0px rgba(0,0,0,0.25), 0px 1px 2px 0px rgba(0,0,0,0.06)",
+      "L3": "0px 10px 15px -3px rgba(0,0,0,0.3), 0px 4px 6px -2px rgba(0,0,0,0.05)",
+      "L4": "0px 25px 50px -12px rgba(0,0,0,0.5)",
+      "inner": "inset 0px -1px 1px 0px rgba(255,255,255,0.04)"
+    }
+  },
+  "cognitionSite": {
+    "_note": "cognition.com atual — tema claro editorial",
+    "background": "#F7F6F5",
+    "text": "#000000",
+    "fontBody": "STK Bureau Serif",
+    "fontHeading": "NB International Pro",
+    "fontMono": "Geist Mono"
+  },
+  "cognitionLegacy": {
+    "_note": "old.cognition.ai — paleta azul-acinzentada",
+    "dark01": "#0F131C",
+    "dark02": "#1F283B",
+    "dark03": "#364363",
+    "light01": "#F2F5FA",
+    "light02": "#EAF0F9",
+    "grey01": "#CDD3E1",
+    "grey02": "#7B8397",
+    "accent01": "#9EAEE9",
+    "accent02": "#A2D1CE",
+    "error": "#FA5050",
+    "gradient01": "linear-gradient(to right, #7485CA 0%, #81B7D4 46%, #85C4C0 100%)",
+    "gradient02": "linear-gradient(to left, #83BCCC 0%, #85C3C0 100%)"
+  },
+  "chartSeries": ["#3969CA", "#21C19A", "#0294DE", "#956CDE", "#F58E3A", "#F53B3A"]
+}

@@ -1,0 +1,26 @@
+{
+  "shared_commondataserviceforapps_1": {
+    "connectionRef": {
+      "id": "/providers/microsoft.powerapps/apis/shared_commondataserviceforapps",
+      "displayName": "Microsoft Dataverse",
+      "dataSources": ["FeatureFlags", "Usuarios"],
+      "tier": "Premium"
+    }
+  },
+  "shared_office365users_1": {
+    "connectionRef": {
+      "id": "/providers/microsoft.powerapps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": ["Office365Users"],
+      "tier": "Standard"
+    }
+  },
+  "shared_teams_1": {
+    "connectionRef": {
+      "id": "/providers/microsoft.powerapps/apis/shared_teams",
+      "displayName": "Microsoft Teams",
+      "dataSources": ["Teams"],
+      "tier": "Standard"
+    }
+  }
+}

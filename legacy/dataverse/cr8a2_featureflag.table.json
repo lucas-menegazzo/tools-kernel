@@ -1,0 +1,21 @@
+{
+  "SchemaName": "cr8a2_featureflag",
+  "DisplayName": "Feature Flag",
+  "OwnershipType": "OrganizationOwned",
+  "HasAuditEnabled": false,
+  "Attributes": [
+    { "SchemaName": "cr8a2_chave",       "Type": "String",  "MaxLength": 100, "IsPrimaryName": true },
+    { "SchemaName": "cr8a2_descricao",   "Type": "String",  "MaxLength": 300 },
+    { "SchemaName": "cr8a2_ambiente",    "Type": "String",  "MaxLength": 30, "Description": "Texto livre. Nao e Picklist." },
+    { "SchemaName": "cr8a2_ativa",       "Type": "Boolean" },
+    { "SchemaName": "cr8a2_timedono",    "Type": "String",  "MaxLength": 100 },
+    { "SchemaName": "cr8a2_alteradopor", "Type": "String",  "MaxLength": 100, "Description": "Guarda apenas a ultima alteracao. A anterior e perdida." },
+    { "SchemaName": "cr8a2_alteradoem",  "Type": "DateTime" }
+  ],
+  "Notes": [
+    "OwnershipType = OrganizationOwned: nao existe dono por linha, entao nao ha como restringir por time no nivel do dado.",
+    "cr8a2_ambiente e texto livre. 'producao', 'Producao' e 'prod' convivem na tabela e nenhum filtro pega os tres.",
+    "HasAuditEnabled = false. cr8a2_alteradopor guarda so a ultima alteracao: o historico de quem ligou e desligou a flag nao existe.",
+    "Nao existe aprovacao. O que existe e uma notificacao no Teams depois do fato."
+  ]
+}

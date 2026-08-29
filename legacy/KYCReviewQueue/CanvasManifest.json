@@ -1,0 +1,29 @@
+{
+  "FormatVersion": "0.24",
+  "Header": {
+    "DocVersion": "1.331",
+    "MinVersionToLoad": "1.317",
+    "MSAppStructureVersion": "2.0",
+    "LastSavedDateTimeUTC": "2026-03-11T14:22:07.000Z"
+  },
+  "Properties": {
+    "Id": "8f2b1c40-9d3a-4e77-b8a1-2c5e9f0d4a13",
+    "Name": "KYC Review Queue",
+    "FileID": "kyc-review-queue",
+    "AppCreationSource": "AppFromScratch",
+    "AppDescription": "Fila de revisao de KYC. Compliance.",
+    "Author": "compliance-ops@thefintechcompany.com.br",
+    "DefaultConnectedDataSourceMaxGetRowsCount": 500,
+    "DocumentAppType": "DesktopOrTablet",
+    "DocumentLayoutWidth": 1366,
+    "DocumentLayoutHeight": 768,
+    "EnableOnStart": true,
+    "ErrorHandlingMode": "Classic"
+  },
+  "PublishInfo": {
+    "AppName": "KYC Review Queue",
+    "Environment": "The Fintech Company (default)",
+    "LastPublishedDateTimeUTC": "2026-03-11T14:24:55.000Z"
+  },
+  "ScreenOrder": ["QueueScreen", "ReviewScreen"]
+}

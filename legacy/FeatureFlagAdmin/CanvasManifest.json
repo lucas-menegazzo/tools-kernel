@@ -1,0 +1,29 @@
+{
+  "FormatVersion": "0.24",
+  "Header": {
+    "DocVersion": "1.331",
+    "MinVersionToLoad": "1.317",
+    "MSAppStructureVersion": "2.0",
+    "LastSavedDateTimeUTC": "2026-06-18T11:07:44.000Z"
+  },
+  "Properties": {
+    "Id": "3c9f5a18-7b24-4d06-a1e9-6f83b2d05c71",
+    "Name": "Feature Flag Admin",
+    "FileID": "feature-flag-admin",
+    "AppCreationSource": "AppFromScratch",
+    "AppDescription": "Painel de feature flags. Plataforma.",
+    "Author": "platform@thefintechcompany.com.br",
+    "DefaultConnectedDataSourceMaxGetRowsCount": 500,
+    "DocumentAppType": "DesktopOrTablet",
+    "DocumentLayoutWidth": 1366,
+    "DocumentLayoutHeight": 768,
+    "EnableOnStart": true,
+    "ErrorHandlingMode": "Classic"
+  },
+  "PublishInfo": {
+    "AppName": "Feature Flag Admin",
+    "Environment": "The Fintech Company (default)",
+    "LastPublishedDateTimeUTC": "2026-06-18T11:09:02.000Z"
+  },
+  "ScreenOrder": ["FlagsScreen"]
+}

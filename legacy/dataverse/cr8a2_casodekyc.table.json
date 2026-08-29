@@ -1,0 +1,25 @@
+{
+  "SchemaName": "cr8a2_casodekyc",
+  "DisplayName": "Caso de KYC",
+  "OwnershipType": "UserOwned",
+  "HasAuditEnabled": false,
+  "Attributes": [
+    { "SchemaName": "cr8a2_numerodocaso", "Type": "String",   "MaxLength": 20,  "IsPrimaryName": true },
+    { "SchemaName": "cr8a2_cpf",          "Type": "String",   "MaxLength": 14,  "Description": "CPF do titular. Sem coluna de seguranca aplicada." },
+    { "SchemaName": "cr8a2_nomecompleto", "Type": "String",   "MaxLength": 200 },
+    { "SchemaName": "cr8a2_niveldeisco",  "Type": "Picklist", "Options": ["Baixo", "Medio", "Alto", "PEP"] },
+    { "SchemaName": "cr8a2_status",       "Type": "Picklist", "Options": ["Novo", "Em analise", "Aguardando aprovacao", "Aprovado", "Reprovado", "Comunicado ao Coaf", "Encerrado"] },
+    { "SchemaName": "cr8a2_responsavel",  "Type": "String",   "MaxLength": 100 },
+    { "SchemaName": "cr8a2_abertoem",     "Type": "DateTime" },
+    { "SchemaName": "cr8a2_prazoqualificacao", "Type": "DateTime", "Description": "Preenchido manualmente pelo analista na abertura." },
+    { "SchemaName": "cr8a2_aprovadopor",  "Type": "String",   "MaxLength": 100 },
+    { "SchemaName": "cr8a2_aprovadoem",   "Type": "DateTime" },
+    { "SchemaName": "cr8a2_parecer",      "Type": "Memo",     "MaxLength": 4000 }
+  ],
+  "Notes": [
+    "HasAuditEnabled = false. A auditoria nativa do Dataverse nunca foi ligada nesta tabela.",
+    "Nao ha coluna de retencao. O criterio de 10 anos vive num documento de compliance, nao no sistema.",
+    "Nao ha column-level security no campo cr8a2_cpf.",
+    "Nao ha exclusao logica: Remove() apaga a linha."
+  ]
+}

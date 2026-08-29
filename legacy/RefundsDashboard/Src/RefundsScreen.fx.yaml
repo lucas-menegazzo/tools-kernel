@@ -1,0 +1,118 @@
+RefundsScreen As screen:
+    Fill: =RGBA(248, 249, 250, 1)
+    OnVisible: |
+        =Set(varUsuario; Office365Users.MyProfileV2());
+        Set(varPapel; LookUp(Usuarios; Email = varUsuario.mail).Papel);
+        ClearCollect(colDevolucoes; 'Devolucoes')
+
+    lblTitulo As label:
+        Text: ="Devolucoes"
+        Size: =20
+        FontWeight: =FontWeight.Semibold
+        X: =40
+        Y: =24
+
+    lblTotalAberto As label:
+        # Soma no cliente. Sum() sobre a colecao, nao sobre a fonte:
+        # se a colecao veio truncada em 500, o total exibido esta errado
+        # e ninguem tem como saber.
+        Text: |
+            ="Total em aberto: R$ " &
+            Text(Sum(Filter(colDevolucoes; Status = "Aguardando aprovacao"); Valor); "[$-pt-BR]#.##0,00")
+        X: =40
+        Y: =58
+
+    galDevolucoes As gallery.galleryVertical:
+        Items: |
+            =Sort(
+                Filter(colDevolucoes; Status <> "Concluida");
+                Valor;
+                SortOrder.Descending
+            )
+        X: =40
+        Y: =96
+        Width: =1280
+        Height: =520
+        TemplateSize: =64
+
+        lblCliente As label:
+            Text: =ThisItem.NomeCliente
+            X: =16
+            Y: =10
+            Width: =240
+
+        lblCpfCliente As label:
+            # CPF em claro na listagem inteira.
+            Text: =ThisItem.CPFCliente
+            X: =270
+            Y: =10
+            Width: =140
+
+        lblValor As label:
+            Text: =Text(ThisItem.Valor; "[$-pt-BR]R$ #.##0,00")
+            X: =430
+            Y: =10
+
+        lblSolicitante As label:
+            Text: =ThisItem.SolicitadoPor
+            X: =560
+            Y: =10
+            Width: =220
+
+        btnAprovar As button:
+            Text: ="Aprovar"
+            # A alcada esta escrita aqui. O limite de 50 mil aparece nesta
+            # propriedade e de novo em btnAprovarSelecionadas, e as duas
+            # divergiram: la embaixo o numero e 60000.
+            DisplayMode: |
+                =If(
+                    ThisItem.SolicitadoPor = varUsuario.mail;
+                    DisplayMode.Disabled;
+                    ThisItem.Valor > 50000 And varPapel <> "Gerente Operacoes";
+                    DisplayMode.Disabled;
+                    ThisItem.Valor > 5000 And varPapel = "Analista";
+                    DisplayMode.Disabled;
+                    DisplayMode.Edit
+                )
+            OnSelect: |
+                =Patch(
+                    'Devolucoes';
+                    ThisItem;
+                    {
+                        Status: "Aprovada";
+                        AprovadoPor: varUsuario.mail;
+                        AprovadoEm: Now()
+                    }
+                )
+            X: =1080
+            Y: =14
+
+        chkSelecionar As checkbox:
+            Text: =""
+            X: =1230
+            Y: =16
+
+    btnAprovarSelecionadas As button:
+        # Aprovacao em lote. Nao repete a checagem de quem solicitou,
+        # entao o proprio solicitante aprova as dele marcando a caixa.
+        # E o limite aqui e 60000, nao 50000.
+        Text: ="Aprovar selecionadas"
+        DisplayMode: =If(varPapel = "Analista"; DisplayMode.Disabled; DisplayMode.Edit)
+        OnSelect: |
+            =ForAll(
+                Filter(galDevolucoes.AllItems; chkSelecionar.Value And Valor <= 60000);
+                Patch(
+                    'Devolucoes';
+                    LookUp('Devolucoes'; ID = galDevolucoes.AllItems[@ID]);
+                    {Status: "Aprovada"; AprovadoPor: varUsuario.mail; AprovadoEm: Now()}
+                )
+            );
+            Notify("Devolucoes aprovadas"; NotificationType.Success)
+        X: =1080
+        Y: =640
+
+    btnExportar As button:
+        Text: ="Exportar"
+        OnSelect: =Export(colDevolucoes; "devolucoes.csv")
+        X: =900
+        Y: =640

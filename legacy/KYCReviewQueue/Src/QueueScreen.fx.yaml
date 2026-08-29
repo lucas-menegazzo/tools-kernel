@@ -1,0 +1,104 @@
+QueueScreen As screen:
+    Fill: =RGBA(248, 249, 250, 1)
+    OnVisible: |
+        =Set(varUsuarioAtual; Office365Users.MyProfileV2());
+        Set(varPapel; LookUp(Usuarios; Email = varUsuarioAtual.mail).Papel);
+        Set(varEhSupervisor; varPapel = "Supervisor Compliance");
+        ClearCollect(colCasos; 'Casos de KYC')
+
+    lblTitulo As label:
+        Text: ="Fila de revisao de KYC"
+        Size: =20
+        FontWeight: =FontWeight.Semibold
+        X: =40
+        Y: =24
+
+    lblContador As label:
+        Text: =CountRows(galCasos.AllItems) & " casos na fila"
+        Size: =11
+        Color: =RGBA(107, 114, 128, 1)
+        X: =40
+        Y: =58
+
+    galCasos As gallery.galleryVertical:
+        # A fila inteira e carregada e filtrada no cliente.
+        # Filter sobre coluna sem indice: o Studio marca com aviso de delegacao.
+        # Acima de 500 registros a lista simplesmente para de trazer o resto,
+        # sem erro. Ninguem percebeu ate a fila passar de 500 em fevereiro.
+        Items: |
+            =Sort(
+                Filter(
+                    colCasos;
+                    Or(
+                        varEhSupervisor;
+                        Responsavel = varUsuarioAtual.mail
+                    ) And
+                    Status <> "Encerrado"
+                );
+                PrazoQualificacao;
+                SortOrder.Ascending
+            )
+        X: =40
+        Y: =92
+        Width: =1280
+        Height: =620
+        TemplateSize: =72
+
+        lblCpf As label:
+            # CPF em claro. Nao existe mascaramento no Power Fx sem escrever
+            # a funcao a mao em cada tela que mostra o campo.
+            Text: =ThisItem.CPF
+            X: =16
+            Y: =12
+            Width: =160
+
+        lblNome As label:
+            Text: =ThisItem.NomeCompleto
+            X: =190
+            Y: =12
+            Width: =280
+
+        lblRisco As label:
+            Text: =ThisItem.NivelDeRisco
+            Color: |
+                =If(
+                    ThisItem.NivelDeRisco = "PEP"; RGBA(168; 50; 30; 1);
+                    ThisItem.NivelDeRisco = "Alto"; RGBA(138; 90; 0; 1);
+                    RGBA(26; 107; 56; 1)
+                )
+            X: =490
+            Y: =12
+
+        lblPrazo As label:
+            # Prazo calculado na tela. A regra dos 30 dias esta escrita aqui,
+            # e tambem em ReviewScreen, e tambem no fluxo do Power Automate.
+            # Tres lugares, tres oportunidades de divergir.
+            Text: |
+                =DateDiff(Today(); ThisItem.PrazoQualificacao; TimeUnit.Days) & " dias"
+            Color: |
+                =If(
+                    DateDiff(Today(); ThisItem.PrazoQualificacao; TimeUnit.Days) < 0;
+                    RGBA(168; 50; 30; 1);
+                    RGBA(84; 91; 104; 1)
+                )
+            X: =620
+            Y: =12
+
+        btnAbrir As button:
+            Text: ="Abrir"
+            # A unica coisa que impede um analista de abrir o caso de outro time
+            # e esta propriedade Visible. A linha ja veio para o cliente.
+            Visible: |
+                =varEhSupervisor Or ThisItem.Responsavel = varUsuarioAtual.mail
+            OnSelect: |
+                =Set(varCasoSelecionado; ThisItem); Navigate(ReviewScreen; ScreenTransition.None)
+            X: =1150
+            Y: =16
+
+    btnExportar As button:
+        Text: ="Exportar CSV"
+        # Exporta a colecao inteira, sem passar pelo filtro da galeria.
+        # Nao gera registro de auditoria de quem exportou nem do que levou.
+        OnSelect: =Export(colCasos; "casos-kyc.csv")
+        X: =1180
+        Y: =24

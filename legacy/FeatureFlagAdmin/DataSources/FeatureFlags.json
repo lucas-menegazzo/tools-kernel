@@ -1,0 +1,16 @@
+{
+  "DataEntityMetadataJson": {
+    "FeatureFlags": {
+      "entitySetName": "cr8a2_featureflags",
+      "logicalName": "cr8a2_featureflag",
+      "primaryKey": "cr8a2_featureflagid",
+      "primaryNameField": "cr8a2_chave",
+      "isTableReadOnly": false
+    }
+  },
+  "Name": "FeatureFlags",
+  "Type": "NativeCDSDataSourceInfo",
+  "DatasetName": "org8a2c1f4b.crm2.dynamics.com",
+  "TableName": "cr8a2_featureflag",
+  "ApiId": "/providers/microsoft.powerapps/apis/shared_commondataserviceforapps"
+}

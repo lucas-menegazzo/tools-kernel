@@ -1,0 +1,6 @@
+App As appinfo:
+    OnStart: |
+        =Set(varAmbiente; "Producao");
+        Set(varVersao; "1.331");
+        ClearCollect(colPapeis; 'Usuarios')
+    Theme: =PowerAppsTheme

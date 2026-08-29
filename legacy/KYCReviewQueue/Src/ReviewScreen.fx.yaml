@@ -1,0 +1,103 @@
+ReviewScreen As screen:
+    Fill: =RGBA(255, 255, 255, 1)
+    OnVisible: |
+        =Set(varPodeAprovar;
+            varPapel = "Supervisor Compliance" Or varPapel = "Gerente Compliance"
+        )
+
+    lblCaso As label:
+        Text: ="Caso " & varCasoSelecionado.NumeroDoCaso
+        Size: =18
+        FontWeight: =FontWeight.Semibold
+        X: =40
+        Y: =24
+
+    lblCpfCompleto As label:
+        Text: ="CPF: " & varCasoSelecionado.CPF
+        X: =40
+        Y: =64
+
+    lblPrazo As label:
+        # Mesma regra de prazo da QueueScreen, escrita de novo.
+        Text: |
+            ="Prazo de qualificacao: " &
+            DateDiff(Today(); varCasoSelecionado.PrazoQualificacao; TimeUnit.Days) & " dias"
+        X: =40
+        Y: =92
+
+    galAnexos As gallery.galleryVertical:
+        Items: =Filter(Anexos; CasoId = varCasoSelecionado.NumeroDoCaso)
+        X: =40
+        Y: =130
+        Height: =200
+
+    txtParecer As text:
+        HintText: ="Parecer do analista"
+        Mode: =TextMode.MultiLine
+        X: =40
+        Y: =350
+        Width: =700
+        Height: =120
+
+    btnAprovar As button:
+        Text: ="Aprovar"
+        # Segregacao de funcoes existe apenas nesta propriedade.
+        # Quem escrever a proxima tela precisa lembrar de repetir a condicao.
+        DisplayMode: |
+            =If(
+                varPodeAprovar And varCasoSelecionado.Responsavel <> varUsuarioAtual.mail;
+                DisplayMode.Edit;
+                DisplayMode.Disabled
+            )
+        OnSelect: |
+            =Patch(
+                'Casos de KYC';
+                varCasoSelecionado;
+                {
+                    Status: "Aprovado";
+                    AprovadoPor: varUsuarioAtual.mail;
+                    AprovadoEm: Now();
+                    Parecer: txtParecer.Text
+                }
+            );
+            Notify("Caso aprovado"; NotificationType.Success);
+            Navigate(QueueScreen; ScreenTransition.None)
+        X: =40
+        Y: =490
+
+    btnReprovar As button:
+        Text: ="Reprovar"
+        DisplayMode: |
+            =If(varPodeAprovar; DisplayMode.Edit; DisplayMode.Disabled)
+        OnSelect: |
+            =Patch(
+                'Casos de KYC';
+                varCasoSelecionado;
+                {Status: "Reprovado"; AprovadoPor: varUsuarioAtual.mail; AprovadoEm: Now()}
+            );
+            Navigate(QueueScreen; ScreenTransition.None)
+        X: =160
+        Y: =490
+
+    btnComunicarCoaf As button:
+        Text: ="Comunicar ao Coaf"
+        # Escreve direto na tabela e dispara o fluxo. Nao ha registro de quem
+        # tentou e nao pode: uma tentativa recusada nao deixa rastro nenhum,
+        # porque o botao so fica desabilitado.
+        DisplayMode: =If(varPapel = "Gerente Compliance"; DisplayMode.Edit; DisplayMode.Disabled)
+        OnSelect: |
+            =Patch('Casos de KYC'; varCasoSelecionado; {Status: "Comunicado ao Coaf"});
+            'Comunicacao-Coaf-Flow'.Run(varCasoSelecionado.NumeroDoCaso)
+        X: =300
+        Y: =490
+
+    btnExcluir As button:
+        Text: ="Excluir caso"
+        # Remove a linha. Nao ha exclusao logica e nao ha trilha:
+        # depois disto nao existe registro de que o caso existiu.
+        Visible: =varPapel = "Gerente Compliance"
+        OnSelect: |
+            =Remove('Casos de KYC'; varCasoSelecionado);
+            Navigate(QueueScreen; ScreenTransition.None)
+        X: =1180
+        Y: =490

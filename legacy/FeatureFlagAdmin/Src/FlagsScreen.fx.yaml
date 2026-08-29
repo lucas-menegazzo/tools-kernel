@@ -1,0 +1,114 @@
+FlagsScreen As screen:
+    Fill: =RGBA(248, 249, 250, 1)
+    OnVisible: |
+        =Set(varUsuario; Office365Users.MyProfileV2());
+        Set(varPapel; LookUp(Usuarios; Email = varUsuario.mail).Papel);
+        ClearCollect(colFlags; FeatureFlags)
+
+    lblTitulo As label:
+        Text: ="Feature flags"
+        Size: =20
+        FontWeight: =FontWeight.Semibold
+        X: =40
+        Y: =24
+
+    drpAmbiente As dropdown:
+        # Ambiente e texto livre na tabela. Este dropdown lista tres valores,
+        # mas a tabela tem "producao", "Producao" e "prod" gravados por telas
+        # e fluxos diferentes ao longo do tempo. Filtrar por "producao" esconde
+        # as flags gravadas como "prod", e o painel parece limpo quando nao esta.
+        Items: =["desenvolvimento"; "homologacao"; "producao"]
+        Default: ="desenvolvimento"
+        X: =40
+        Y: =60
+        Width: =220
+
+    galFlags As gallery.galleryVertical:
+        Items: |
+            =Filter(colFlags; Ambiente = drpAmbiente.Selected.Value)
+        X: =40
+        Y: =104
+        Width: =1280
+        Height: =560
+        TemplateSize: =56
+
+        lblChave As label:
+            Text: =ThisItem.Chave
+            Font: =Font.'Consolas'
+            X: =16
+            Y: =8
+            Width: =360
+
+        lblTime As label:
+            Text: =ThisItem.TimeDono
+            X: =400
+            Y: =8
+            Width: =200
+
+        lblUltimaAlteracao As label:
+            # Mostra apenas a ultima alteracao, porque a tabela so guarda uma.
+            Text: =ThisItem.AlteradoPor & " em " & Text(ThisItem.AlteradoEm; "dd/mm/yyyy hh:mm")
+            Size: =10
+            Color: =RGBA(107, 114, 128, 1)
+            X: =620
+            Y: =8
+            Width: =320
+
+        tglAtiva As toggle:
+            # Liga e desliga a flag direto, inclusive em producao.
+            # Nao existe aprovacao: o que existe e a mensagem no Teams abaixo,
+            # que e enviada DEPOIS da escrita e nao bloqueia nada.
+            # Se o Teams falhar, a flag ja mudou e ninguem fica sabendo.
+            Default: =ThisItem.Ativa
+            DisplayMode: |
+                =If(
+                    varPapel = "Leitura";
+                    DisplayMode.Disabled;
+                    DisplayMode.Edit
+                )
+            OnChange: |
+                =Patch(
+                    FeatureFlags;
+                    ThisItem;
+                    {
+                        Ativa: tglAtiva.Value;
+                        AlteradoPor: varUsuario.mail;
+                        AlteradoEm: Now()
+                    }
+                );
+                If(
+                    drpAmbiente.Selected.Value = "producao";
+                    'Notificar-Plataforma-Flow'.Run(
+                        ThisItem.Chave & " agora esta " & If(tglAtiva.Value; "ativa"; "inativa") &
+                        " em producao. Alterado por " & varUsuario.mail
+                    )
+                )
+            X: =1180
+            Y: =12
+
+    btnNovaFlag As button:
+        Text: ="Nova flag"
+        # Cria a flag com o ambiente vindo do dropdown, mas outras telas e o
+        # fluxo de deploy gravam a mesma coluna com outros valores.
+        OnSelect: |
+            =Patch(
+                FeatureFlags;
+                Defaults(FeatureFlags);
+                {
+                    Chave: txtNovaChave.Text;
+                    Ambiente: drpAmbiente.Selected.Value;
+                    Ativa: false;
+                    TimeDono: varUsuario.department;
+                    AlteradoPor: varUsuario.mail;
+                    AlteradoEm: Now()
+                }
+            );
+            ClearCollect(colFlags; FeatureFlags)
+        X: =1180
+        Y: =60
+
+    txtNovaChave As text:
+        HintText: ="chave.da.nova.flag"
+        X: =900
+        Y: =60
+        Width: =260

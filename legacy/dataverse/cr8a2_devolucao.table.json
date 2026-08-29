@@ -1,0 +1,25 @@
+{
+  "SchemaName": "cr8a2_devolucao",
+  "DisplayName": "Devolucao",
+  "OwnershipType": "UserOwned",
+  "HasAuditEnabled": false,
+  "Attributes": [
+    { "SchemaName": "cr8a2_numero",        "Type": "String",   "MaxLength": 20, "IsPrimaryName": true },
+    { "SchemaName": "cr8a2_cpfcliente",    "Type": "String",   "MaxLength": 14, "Description": "CPF do cliente. Sem coluna de seguranca aplicada." },
+    { "SchemaName": "cr8a2_nomecliente",   "Type": "String",   "MaxLength": 200 },
+    { "SchemaName": "cr8a2_valor",         "Type": "Decimal",  "Precision": 2 },
+    { "SchemaName": "cr8a2_motivo",        "Type": "Picklist", "Options": ["Cobranca indevida", "Produto nao entregue", "Fraude confirmada", "Duplicidade", "Outro"] },
+    { "SchemaName": "cr8a2_status",        "Type": "Picklist", "Options": ["Solicitada", "Aguardando aprovacao", "Aprovada", "Recusada", "Concluida"] },
+    { "SchemaName": "cr8a2_solicitadopor", "Type": "String",   "MaxLength": 100 },
+    { "SchemaName": "cr8a2_solicitadaem",  "Type": "DateTime" },
+    { "SchemaName": "cr8a2_aprovadopor",   "Type": "String",   "MaxLength": 100, "Description": "Uma unica coluna. A segunda aprovacao sobrescreve a primeira." },
+    { "SchemaName": "cr8a2_aprovadoem",    "Type": "DateTime" }
+  ],
+  "Notes": [
+    "HasAuditEnabled = false.",
+    "A aprovacao mora na propria linha, em cr8a2_aprovadopor. Nao existe registro separado de decisao, entao uma aprovacao dupla nao cabe no modelo: a segunda sobrescreve a primeira.",
+    "Nao ha coluna registrando a faixa de alcada aplicada, entao nao da para reconstruir depois qual regra valia quando a devolucao foi aprovada.",
+    "Uma recusa nao e gravada em lugar nenhum quando o botao esta desabilitado.",
+    "Nao ha campo de prazo, apesar de operacoes trabalhar com um."
+  ]
+}
