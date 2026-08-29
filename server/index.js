@@ -430,10 +430,19 @@ app.post('/api/feature-flags/toggle', async (req, res) => {
   }
 });
 
-// Serve the main page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+// Serve app pages with optional trailing-slash redirect
+function servePage(route, file) {
+  app.get(route, (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', file));
+  });
+  app.get(route + '/', (req, res) => {
+    res.redirect(route);
+  });
+}
+
+servePage('/', 'index.html');
+servePage('/refunds.html', 'refunds.html');
+servePage('/feature-flags.html', 'feature-flags.html');
 
 // Start server
 app.listen(PORT, () => {
