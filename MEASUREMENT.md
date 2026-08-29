@@ -40,3 +40,13 @@ or an artefact of every app looking alike
 - User messages: [to be logged]
 - ACUs: [to be logged]
 - Session size: [to be logged]
+
+### Sessions 1–5 Log
+
+| Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
+|---|---|---|---|---|---|---|
+| 1 · Núcleo + KYC do legado | [Session Insights] | [Session Insights] | [Session Insights] | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 2 · Devoluções | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
+| 3 · Feature flags | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
+| 4 · Triagem | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
+| 5 · Intake | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
