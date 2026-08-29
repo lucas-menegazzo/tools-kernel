@@ -1,0 +1,198 @@
+# Refunds Dashboard App
+# Derived from legacy/RefundsDashboard/ and legacy/dataverse/cr8a2_devolucao.table.json
+
+app:
+  name: refunds-dashboard
+  description: Refunds dashboard for operations team with amount-based approvals
+  schema: refunds
+
+entities:
+  devolucao:
+    table_name: devolucoes
+    fields:
+      - name: case_number
+        type: text
+        primary_key: true
+        pii: false
+        description: "Unique refund identifier"
+      
+      - name: cpf_cliente
+        type: text
+        pii: true
+        pii_type: cpf
+        description: "Customer CPF"
+        max_length: 14
+      
+      - name: nome_cliente
+        type: text
+        pii: true
+        pii_type: name
+        description: "Customer name"
+        max_length: 200
+      
+      - name: valor
+        type: numeric
+        pii: false
+        description: "Refund amount in BRL"
+      
+      - name: motivo
+        type: text
+        pii: false
+        enum: ["Cobranca indevida", "Produto nao entregue", "Fraude confirmada", "Duplicidade", "Outro"]
+        description: "Reason for refund"
+      
+      - name: status
+        type: text
+        pii: false
+        enum: ["Solicitada", "Aguardando aprovacao", "Aprovada", "Recusada", "Concluida"]
+        description: "Current refund status"
+      
+      - name: solicitado_por
+        type: text
+        pii: false
+        description: "Email of the requester"
+        max_length: 100
+      
+      - name: solicitada_em
+        type: timestamp
+        pii: false
+        description: "When the refund was requested"
+      
+      - name: team
+        type: text
+        pii: false
+        description: "Operations team responsible for the refund"
+        max_length: 100
+      
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who created the record"
+        max_length: 100
+      
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the record was created"
+        default: "NOW()"
+      
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the record was last updated"
+        default: "NOW()"
+
+state_machine:
+  entity: devolucao
+  initial_state: "Solicitada"
+  states:
+    - name: "Solicitada"
+      transitions:
+        - to: "Aguardando aprovacao"
+          action: "submit_for_approval"
+          allowed_roles: ["Analista Senior", "Supervisor Operacoes", "Gerente Operacoes"]
+    
+    - name: "Aguardando aprovacao"
+      transitions:
+        - to: "Aprovada"
+          action: "approve"
+          allowed_roles: ["Analista Senior", "Supervisor Operacoes", "Gerente Operacoes"]
+          requires_approval: true
+        - to: "Recusada"
+          action: "reject"
+          allowed_roles: ["Analista Senior", "Supervisor Operacoes", "Gerente Operacoes"]
+          requires_approval: true
+    
+    - name: "Aprovada"
+      transitions:
+        - to: "Concluida"
+          action: "close"
+          allowed_roles: ["Gerente Operacoes"]
+    
+    - name: "Recusada"
+      transitions:
+        - to: "Concluida"
+          action: "close"
+          allowed_roles: ["Gerente Operacoes"]
+    
+    - name: "Concluida"
+      transitions: []
+
+row_level_security:
+  entity: devolucao
+  policies:
+    - name: "team_analyst_visibility"
+      description: "Senior analysts see refunds in their operations team"
+      using: |
+        (has_role('Analista Senior') AND team = current_actor_team())
+        OR has_role('Supervisor Operacoes')
+        OR has_role('Gerente Operacoes')
+    
+    - name: "team_supervisor_visibility"
+      description: "Operations supervisors see refunds in their operations team"
+      using: |
+        (has_role('Supervisor Operacoes') AND team = current_actor_team())
+        OR has_role('Gerente Operacoes')
+    
+    - name: "manager_visibility"
+      description: "Operations managers see all refunds"
+      using: |
+        has_role('Gerente Operacoes')
+
+approval_configuration:
+  table_name: devolucoes
+  bands:
+    - name: "refund_low_band"
+      min_amount: 0
+      max_amount: 5000
+      approving_roles: ["Analista Senior", "Supervisor Operacoes", "Gerente Operacoes"]
+      required_approvals: 1
+      description: "Refunds up to R$ 5,000 require one senior analyst approval"
+    
+    - name: "refund_medium_band"
+      min_amount: 5000
+      max_amount: 50000
+      approving_roles: ["Supervisor Operacoes", "Gerente Operacoes"]
+      required_approvals: 1
+      description: "Refunds from R$ 5,000 to R$ 50,000 require one operations supervisor approval"
+    
+    - name: "refund_high_band"
+      min_amount: 50000
+      max_amount: null
+      approving_roles: ["Gerente Operacoes"]
+      required_approvals: 2
+      description: "Refunds above R$ 50,000 require two distinct operations manager approvals"
+  
+  rules:
+    - proposer_cannot_approve: true
+    - record_refusals: true
+    - distinct_approvals: true
+    - shared_code_path: true
+
+business_rules:
+  - name: "amount_approval_bands"
+    description: "Approval authority is determined by refund amount; the same code path handles single and bulk approvals"
+    enforcement: "kernel_amount_approval_bands"
+  
+  - name: "proposer_segregation"
+    description: "A requester cannot approve their own refund, including in bulk"
+    enforcement: "kernel_approval_system"
+  
+  - name: "aggregate_totals_in_database"
+    description: "Open refund totals are aggregated in the database, not client-side"
+    enforcement: "database_aggregation"
+  
+  - name: "separate_approval_records"
+    description: "Each approval is a separate record; a second approval does not overwrite the first"
+    enforcement: "kernel_approval_table"
+
+ui_requirements:
+  - queue_screen:
+      features:
+        - refund_list_with_pagination
+        - amount_display_with_band_indicator
+        - role_based_visibility_filtering
+        - single_and_bulk_approval_actions
+        - aggregate_total_in_database
+      tokens: use_design_system
+      fonts: use_design_system

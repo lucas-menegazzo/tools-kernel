@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Review Queue - Tools Kernel</title>
+    <link rel="stylesheet" href="../design/tokens/devin-tokens.css">
+    <style>
+        @font-face {
+            font-family: 'Inter';
+            src: url('../design/assets/fonts/Inter-latin.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('../design/assets/fonts/IBMPlexSans-Regular.woff2') format('woff2');
+            font-weight: 300;
+        }
+        @font-face {
+            font-family: 'Geist Mono';
+            src: url('../design/assets/fonts/GeistMono-Regular.woff2') format('woff2');
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #141414;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 16px;
+        }
+        
+        .actor-selector {
+            background: #1F1F1F;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .actor-selector h2 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .actor-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .actor-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .actor-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+        
+        .actor-btn.active {
+            background: #4489FF;
+            border-color: #4489FF;
+            color: white;
+        }
+        
+        .queue-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .queue-count {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 14px;
+        }
+        
+        .export-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1F1F1F;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .cases-table th {
+            text-align: left;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.52);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .cases-table td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        
+        .cases-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .risk-baixo {
+            background: rgba(0, 236, 126, 0.1);
+            color: #00EC7E;
+        }
+        
+        .risk-medio {
+            background: rgba(53, 142, 58, 0.1);
+            color: #358E3A;
+        }
+        
+        .risk-alto {
+            background: rgba(245, 142, 58, 0.1);
+            color: #F58E3A;
+        }
+        
+        .risk-pep {
+            background: rgba(245, 59, 58, 0.1);
+            color: #F53B3A;
+        }
+        
+        .deadline {
+            font-family: 'Geist Mono', monospace;
+            font-size: 13px;
+        }
+        
+        .deadline.overdue {
+            color: #F53B3A;
+        }
+        
+        .deadline.warning {
+            color: #F58E3A;
+        }
+        
+        .deadline.normal {
+            color: rgba(255, 255, 255, 0.52);
+        }
+        
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .status-em-analise {
+            background: rgba(73, 176, 255, 0.1);
+            color: #49B0FF;
+        }
+        
+        .status-aguardando-aprovacao {
+            background: rgba(245, 142, 58, 0.1);
+            color: #F58E3A;
+        }
+        
+        .status-aprovado {
+            background: rgba(0, 236, 126, 0.1);
+            color: #00EC7E;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.52);
+        }
+        
+        .error {
+            background: rgba(245, 59, 58, 0.1);
+            border: 1px solid rgba(245, 59, 58, 0.2);
+            color: #F53B3A;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .info-panel {
+            background: #191919;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-panel h3 {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .info-panel p {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .current-actor {
+            background: rgba(73, 176, 255, 0.1);
+            border: 1px solid rgba(73, 176, 255, 0.2);
+            color: #49B0FF;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KYC Review Queue</h1>
+            <p class="subtitle">Isolation demonstration with actor selector</p>
+        </header>
+        
+        <div class="actor-selector">
+            <h2>Select Actor</h2>
+            <div class="actor-buttons" id="actorButtons">
+                <!-- Actor buttons will be loaded here -->
+            </div>
+        </div>
+        
+        <div id="currentActor" class="current-actor" style="display: none;">
+            <!-- Current actor info will be shown here -->
+        </div>
+        
+        <div class="queue-info">
+            <div class="queue-count" id="queueCount">No cases loaded</div>
+            <button class="export-btn" id="exportBtn">Export CSV</button>
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="loading" class="loading">Select an actor to load cases</div>
+        
+        <table class="cases-table" id="casesTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Case Number</th>
+                    <th>Full Name</th>
+                    <th>CPF</th>
+                    <th>Risk Level</th>
+                    <th>Status</th>
+                    <th>Responsible Analyst</th>
+                    <th>Qualification Deadline</th>
+                </tr>
+            </thead>
+            <tbody id="casesBody">
+                <!-- Cases will be loaded here -->
+            </tbody>
+        </table>
+        
+        <div class="info-panel">
+            <h3>Isolation Demonstration</h3>
+            <p><strong>Marina Alves (Analista Compliance):</strong> Sees only her assigned cases in Team A. CPF is masked.</p>
+            <p><strong>Helena Castro (Supervisor Compliance):</strong> Sees all cases in Team A. CPF is masked.</p>
+            <p><strong>Otavio Branco (CISO):</strong> Has PII revelation permission but sees zero rows (not on any case team - RLS working).</p>
+        </div>
+    </div>
+    
+    <script>
+        let currentActor = null;
+        let actors = [];
+        
+        // Load actors
+        async function loadActors() {
+            try {
+                const response = await fetch('/api/actors');
+                actors = await response.json();
+                renderActorButtons();
+            } catch (error) {
+                showError('Failed to load actors: ' + error.message);
+            }
+        }
+        
+        function renderActorButtons() {
+            const container = document.getElementById('actorButtons');
+            container.innerHTML = actors.map(actor => `
+                <button class="actor-btn ${currentActor?.email === actor.email ? 'active' : ''}" 
+                        onclick="selectActor('${actor.email}')">
+                    ${actor.name} (${actor.role})
+                </button>
+            `).join('');
+        }
+        
+        async function selectActor(email) {
+            currentActor = actors.find(a => a.email === email);
+            renderActorButtons();
+            
+            document.getElementById('currentActor').style.display = 'block';
+            document.getElementById('currentActor').innerHTML = `
+                <strong>Current Actor:</strong> ${currentActor.name} (${currentActor.role}) - Team: ${currentActor.team}
+            `;
+            
+            await loadCases();
+        }
+        
+        async function loadCases() {
+            if (!currentActor) return;
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('casesTable').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            try {
+                const response = await fetch(`/api/kyc-cases?actor=${currentActor.email}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    renderCases(data);
+                } else {
+                    showError('Failed to load cases: ' + data.error);
+                }
+            } catch (error) {
+                showError('Failed to load cases: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function renderCases(data) {
+            document.getElementById('queueCount').textContent = `${data.count} cases visible to ${currentActor.name}`;
+            
+            const tbody = document.getElementById('casesBody');
+            tbody.innerHTML = data.cases.map(c => {
+                const deadline = new Date(c.qualification_deadline);
+                const today = new Date();
+                const daysUntil = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                
+                let deadlineClass = 'normal';
+                if (daysUntil < 0) deadlineClass = 'overdue';
+                else if (daysUntil <= 7) deadlineClass = 'warning';
+                
+                return `
+                    <tr>
+                        <td style="font-family: 'Geist Mono', monospace;">${c.case_number}</td>
+                        <td>${c.full_name}</td>
+                        <td style="font-family: 'Geist Mono', monospace;">${c.cpf}</td>
+                        <td><span class="risk-badge risk-${c.risk_level.toLowerCase()}">${c.risk_level}</span></td>
+                        <td><span class="status status-${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
+                        <td>${c.responsible_analyst}</td>
+                        <td class="deadline ${deadlineClass}">${daysUntil} days (${deadline.toLocaleDateString()})</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('casesTable').style.display = 'table';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Initialize
+        loadActors();
+    </script>
+</body>
+</html>

@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "Internal tools factory for regulated fintech",
   "scripts": {
-    "check": "echo 'Check command - to be implemented with actual linting/tests'"
+    "check": "node scripts/check-invariants.js",
+    "start": "node server/index.js"
   },
   "keywords": ["fintech", "internal-tools", "kernel"],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3"
+  }
 }
