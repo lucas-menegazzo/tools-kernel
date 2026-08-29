@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Flag Admin - Tools Kernel</title>
+    <link rel="stylesheet" href="../design/tokens/devin-tokens.css">
+    <style>
+        @font-face {
+            font-family: 'Inter';
+            src: url('../design/assets/fonts/Inter-latin.woff2') format('woff2');
+            font-weight: 400;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #141414;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 16px;
+        }
+
+        .nav {
+            margin-bottom: 24px;
+        }
+
+        .nav a {
+            color: #49B0FF;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 16px;
+        }
+
+        .actor-selector {
+            background: #1F1F1F;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .actor-selector h2 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .actor-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .actor-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .actor-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .actor-btn.active {
+            background: #4489FF;
+            border-color: #4489FF;
+            color: white;
+        }
+
+        .queue-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .queue-count {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 14px;
+        }
+
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1F1F1F;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cases-table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.52);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .cases-table td {
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .cases-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        .toggle.active {
+            background: #00EC7E;
+        }
+
+        .toggle.inactive {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        .toggle.active::after {
+            transform: translateX(20px);
+        }
+
+        .environment {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .env-desenvolvimento { background: rgba(73, 176, 255, 0.1); color: #49B0FF; }
+        .env-homologacao { background: rgba(245, 142, 58, 0.1); color: #F58E3A; }
+        .env-producao { background: rgba(0, 236, 126, 0.1); color: #00EC7E; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.52);
+        }
+
+        .error {
+            background: rgba(245, 59, 58, 0.1);
+            border: 1px solid rgba(245, 59, 58, 0.2);
+            color: #F53B3A;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-panel {
+            background: #191919;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .info-panel h3 {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-panel p {
+            color: rgba(255, 255, 255, 0.52);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .current-actor {
+            background: rgba(73, 176, 255, 0.1);
+            border: 1px solid rgba(73, 176, 255, 0.2);
+            color: #49B0FF;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Feature Flag Admin</h1>
+            <p class="subtitle">Visibilidade por time e herança de valores legados</p>
+        </header>
+
+        <div class="nav">
+            <a href="/">KYC Review Queue</a>
+            <a href="/refunds.html">Refunds Dashboard</a>
+        </div>
+
+        <div class="actor-selector">
+            <h2>Selecionar Ator</h2>
+            <div class="actor-buttons" id="actorButtons"></div>
+        </div>
+
+        <div id="currentActor" class="current-actor" style="display: none;"></div>
+
+        <div class="queue-info">
+            <div class="queue-count" id="queueCount">Nenhuma flag carregada</div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="loading" class="loading">Selecione um ator para carregar flags</div>
+
+        <table class="cases-table" id="casesTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Flag Key</th>
+                    <th>Descrição</th>
+                    <th>Ambiente</th>
+                    <th>Ativo</th>
+                    <th>Owning Team</th>
+                    <th>Criado por</th>
+                </tr>
+            </thead>
+            <tbody id="casesBody"></tbody>
+        </table>
+
+        <div class="info-panel">
+            <h3>Demonstração de RLS</h3>
+            <p><strong>Engenheiro Plataforma:</strong> vê e edita apenas flags do próprio time.</p>
+            <p><strong>Tech Lead Plataforma:</strong> vê e edita todas as flags.</p>
+            <p><strong>Leitor Plataforma:</strong> vê apenas as flags do time Risk.</p>
+            <p>Ambientes legados como "prod", "Producao" e "hml" foram normalizados para o enum canônico.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentActor = null;
+        let actors = [];
+
+        async function loadActors() {
+            try {
+                const response = await fetch('/api/feature-flag-actors');
+                actors = await response.json();
+                renderActorButtons();
+            } catch (error) {
+                showError('Falha ao carregar atores: ' + error.message);
+            }
+        }
+
+        function renderActorButtons() {
+            const container = document.getElementById('actorButtons');
+            container.innerHTML = actors.map(actor => `
+                <button class="actor-btn ${currentActor?.email === actor.email ? 'active' : ''}"
+                        onclick="selectActor('${actor.email}')">
+                    ${actor.name} (${actor.role})
+                </button>
+            `).join('');
+        }
+
+        async function selectActor(email) {
+            currentActor = actors.find(a => a.email === email);
+            renderActorButtons();
+
+            document.getElementById('currentActor').style.display = 'block';
+            document.getElementById('currentActor').innerHTML = `
+                <strong>Ator atual:</strong> ${currentActor.name} (${currentActor.role}) - ${currentActor.team}
+            `;
+
+            await loadFeatureFlags();
+        }
+
+        async function loadFeatureFlags() {
+            if (!currentActor) return;
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('casesTable').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/feature-flags?actor=${currentActor.email}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    renderFeatureFlags(data);
+                } else {
+                    showError('Falha ao carregar flags: ' + data.error);
+                }
+            } catch (error) {
+                showError('Falha ao carregar flags: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function renderFeatureFlags(data) {
+            document.getElementById('queueCount').textContent = `${data.count} flags visíveis para ${currentActor.name}`;
+
+            const tbody = document.getElementById('casesBody');
+            tbody.innerHTML = data.cases.map(c => `
+                <tr>
+                    <td style="font-family: 'Geist Mono', monospace;">${c.flag_key}</td>
+                    <td>${c.description}</td>
+                    <td><span class="environment env-${c.environment}">${c.environment}</span></td>
+                    <td>
+                        <button class="toggle ${c.is_active ? 'active' : 'inactive'}" 
+                                onclick="toggleFlag('${c.flag_key.replace(/'/g, "\\'")}')">
+                        </button>
+                    </td>
+                    <td>${c.owning_team}</td>
+                    <td>${c.created_by}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('casesTable').style.display = 'table';
+        }
+
+        async function toggleFlag(flagKey) {
+            if (!currentActor) return;
+
+            try {
+                const response = await fetch('/api/feature-flags/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ flagKey, actorEmail: currentActor.email })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    await loadFeatureFlags();
+                } else {
+                    showError('Falha ao alterar flag: ' + data.error);
+                }
+            } catch (error) {
+                showError('Falha ao alterar flag: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        loadActors();
+    </script>
+</body>
+</html>

@@ -44,6 +44,45 @@ const actors = [
   }
 ];
 
+// Available Feature Flag actors for testing
+const featureFlagActors = [
+  {
+    email: 'bruno.martins@thefintechcompany.com.br',
+    name: 'Bruno Martins',
+    role: 'Engenheiro Plataforma',
+    team: 'Platform',
+    canRevealPII: false
+  },
+  {
+    email: 'carla.silva@thefintechcompany.com.br',
+    name: 'Carla Silva',
+    role: 'Engenheiro Plataforma',
+    team: 'KYC',
+    canRevealPII: false
+  },
+  {
+    email: 'diego.nunes@thefintechcompany.com.br',
+    name: 'Diego Nunes',
+    role: 'Engenheiro Plataforma',
+    team: 'Refunds',
+    canRevealPII: false
+  },
+  {
+    email: 'fernanda.lima@thefintechcompany.com.br',
+    name: 'Fernanda Lima',
+    role: 'Tech Lead Plataforma',
+    team: 'Platform',
+    canRevealPII: false
+  },
+  {
+    email: 'gabriel.santos@thefintechcompany.com.br',
+    name: 'Gabriel Santos',
+    role: 'Leitor Plataforma',
+    team: 'Risk',
+    canRevealPII: false
+  }
+];
+
 // Available Refunds actors for testing
 const refundActors = [
   {
@@ -301,6 +340,90 @@ app.post('/api/refunds/approve', async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error approving refunds:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// API endpoint to get feature flag actors
+app.get('/api/feature-flag-actors', (req, res) => {
+  res.json(featureFlagActors);
+});
+
+// API endpoint to get feature flags for current actor
+app.get('/api/feature-flags', async (req, res) => {
+  const actorEmail = req.query.actor;
+  const actor = featureFlagActors.find(a => a.email === actorEmail);
+  
+  if (!actor) {
+    return res.status(400).json({ error: 'Invalid actor' });
+  }
+  
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    await setActorContext(client, actor);
+    
+    const result = await client.query(`
+      SELECT 
+        flag_key,
+        description,
+        environment,
+        is_active,
+        owning_team,
+        created_by,
+        created_at,
+        updated_at
+      FROM feature_flag.feature_flags
+      WHERE deleted_at IS NULL
+      ORDER BY flag_key
+    `);
+    
+    await client.query('COMMIT');
+    
+    res.json({
+      actor: actor,
+      cases: result.rows,
+      count: result.rows.length
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error fetching feature flags:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// API endpoint to toggle a feature flag
+app.post('/api/feature-flags/toggle', async (req, res) => {
+  const { flagKey, actorEmail } = req.body;
+  const actor = featureFlagActors.find(a => a.email === actorEmail);
+  
+  if (!actor) {
+    return res.status(400).json({ error: 'Invalid actor' });
+  }
+  
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    await setActorContext(client, actor);
+    
+    await client.query(`
+      UPDATE feature_flag.feature_flags
+      SET is_active = NOT is_active
+      WHERE flag_key = $1
+    `, [flagKey]);
+    
+    await client.query('COMMIT');
+    
+    res.json({ success: true, flagKey });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error toggling feature flag:', error);
     res.status(500).json({ error: error.message });
   } finally {
     client.release();
