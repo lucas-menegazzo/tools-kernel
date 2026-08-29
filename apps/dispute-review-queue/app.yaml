@@ -1,0 +1,171 @@
+# Credit Card Dispute Review Queue
+# Derived from issue #3: a non-engineer needs to track credit card disputes.
+
+app:
+  name: dispute-review-queue
+  description: Fila de analise e aprovacao de contestacoes de cartao de credito
+  schema: disputes
+
+entities:
+  dispute:
+    table_name: disputes
+    fields:
+      - name: id
+        type: serial
+        primary_key: true
+        system: true
+
+      - name: dispute_id
+        type: text
+        unique: true
+        pii: false
+        description: "User-facing dispute identifier"
+
+      - name: cpf
+        type: text
+        pii: true
+        pii_type: cpf
+        description: "Customer CPF"
+        max_length: 14
+
+      - name: amount
+        type: numeric
+        pii: false
+        description: "Disputed amount in BRL"
+
+      - name: reason
+        type: text
+        pii: false
+        description: "Reason for the dispute"
+        max_length: 1000
+
+      - name: response_deadline
+        type: timestamp
+        pii: false
+        description: "45-day deadline to respond to the dispute"
+        retention_basis: "customer-dispute-45-day-response-sla"
+
+      - name: status
+        type: text
+        pii: false
+        enum: ["Aberto", "Em analise", "Aguardando aprovacao", "Aprovado", "Rejeitado", "Concluido"]
+        description: "Current status of the dispute"
+
+      - name: assigned_analyst
+        type: text
+        pii: false
+        description: "Analyst responsible for the dispute"
+        max_length: 100
+
+      - name: created_by
+        type: text
+        pii: false
+        description: "Who opened the dispute"
+        max_length: 100
+
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the dispute was created"
+        default: "NOW()"
+
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the dispute was last updated"
+        default: "NOW()"
+
+state_machine:
+  entity: dispute
+  initial_state: "Aberto"
+  states:
+    - name: "Aberto"
+      transitions:
+        - to: "Em analise"
+          action: "assign_to_analyst"
+          allowed_roles: ["Analista Contestacoes", "Supervisor Contestacoes"]
+
+    - name: "Em analise"
+      transitions:
+        - to: "Aprovado"
+          action: "approve_refund"
+          allowed_roles: ["Analista Contestacoes", "Supervisor Contestacoes"]
+          requires_approval: true
+        - to: "Rejeitado"
+          action: "reject_refund"
+          allowed_roles: ["Supervisor Contestacoes", "Gerente Contestacoes"]
+
+    - name: "Aprovado"
+      transitions:
+        - to: "Concluido"
+          action: "close"
+          allowed_roles: ["Supervisor Contestacoes", "Gerente Contestacoes"]
+
+    - name: "Rejeitado"
+      transitions:
+        - to: "Concluido"
+          action: "close"
+          allowed_roles: ["Supervisor Contestacoes", "Gerente Contestacoes"]
+
+    - name: "Concluido"
+      transitions: []
+
+row_level_security:
+  entity: dispute
+  policies:
+    - name: "analyst_sees_own_disputes"
+      description: "Analysts see only the disputes assigned to them; supervisors and managers see all"
+      using: |
+        assigned_analyst = current_actor_id()
+        OR has_role('Supervisor Contestacoes')
+        OR has_role('Gerente Contestacoes')
+
+    - name: "no_visibility_for_unauthorized"
+      description: "Only the chargeback team may see disputes"
+      using: |
+        has_role('Analista Contestacoes')
+        OR has_role('Supervisor Contestacoes')
+        OR has_role('Gerente Contestacoes')
+
+business_rules:
+  - name: "45_day_response_deadline"
+    description: "Each dispute must have a 45-day response deadline"
+    enforcement: "database_check"
+    check: |
+      response_deadline <= created_at + INTERVAL '45 days'
+
+  - name: "amount_threshold_requires_two_supervisor_approvals"
+    description: "Disputes above R$ 10,000 require two distinct supervisor/manager approvals before the refund is approved"
+    enforcement: "kernel_amount_approval_system"
+    threshold_amount: 10000
+    threshold_currency: "BRL"
+    approving_roles: ["Supervisor Contestacoes", "Gerente Contestacoes"]
+    required_approvals: 2
+
+  - name: "audit_every_dispute_change"
+    description: "Every change to a dispute is recorded in the audit trail"
+    enforcement: "kernel_audit_trail"
+
+  - name: "soft_delete_with_10_year_retention"
+    description: "Deleted disputes are retained for 10 years per operational policy"
+    enforcement: "kernel_soft_delete"
+    retention_years: 10
+    retention_basis: "operational-data-retention-policy"
+
+ui_requirements:
+  - queue_screen:
+      features:
+        - dispute_list_with_deadline_highlighting
+        - cpf_masking
+        - amount_column
+        - role_based_filtering
+      tokens: use_design_system
+      fonts: use_design_system
+
+  - detail_screen:
+      features:
+        - dispute_detail_view
+        - approve_reject_buttons
+        - approval_status_for_high_value
+      tokens: use_design_system
+      fonts: use_design_system
