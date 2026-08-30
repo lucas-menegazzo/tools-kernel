@@ -49,7 +49,8 @@ CREATE TABLE table_approval_bands (
     FOREIGN KEY (band_id) REFERENCES approval_bands(id)
 );
 
--- Function to check if an approval band exists for a table
+-- Look up the generic approval band associated with a table.
+-- Returns the band row or NULL when the table has no configured band.
 CREATE FUNCTION get_approval_band(table_name TEXT)
 RETURNS approval_bands AS $$
 DECLARE
@@ -62,7 +63,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Get the amount-based band for a table and value
+-- Find the amount-approval band that applies to a specific table and value.
+-- Returns the matching band or NULL when no band covers the value.
 CREATE FUNCTION get_amount_approval_band(p_table_name TEXT, p_amount NUMERIC)
 RETURNS amount_approval_bands AS $$
 DECLARE
@@ -78,7 +80,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to record an approval decision
+-- Record an approval decision for a target record.
+-- Verifies the actor has an approving role, is not the proposer, and then
+-- inserts an approval row plus an audit entry. The band is taken from
+-- table_approval_bands, not from the app.
 CREATE FUNCTION record_approval(
     p_target_table TEXT,
     p_target_record_id TEXT,
@@ -151,7 +156,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to check if a record has sufficient approvals
+-- Return true when a record has at least the number of distinct approvals
+-- required by its approval band. Returns true when no band is configured.
 CREATE FUNCTION has_sufficient_approvals(p_target_table TEXT, p_target_record_id TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -176,7 +182,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Record an approval for an amount-based band (e.g., refunds)
+-- Record an approval for an amount-based band (e.g., refunds).
+-- Fetches the amount from the target record, resolves the matching band,
+-- checks the actor's role and proposer segregation, then writes the approval.
 CREATE FUNCTION record_amount_approval(
     p_target_table TEXT,
     p_target_record_id TEXT,
@@ -256,7 +264,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Check if a record has sufficient amount-based approvals
+-- Return true when a record has enough distinct approvals for its amount-based band.
+-- Returns true when the amount is null or no band covers it.
 CREATE FUNCTION has_sufficient_amount_approvals(p_target_table TEXT, p_target_record_id TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -291,7 +300,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get approval status for a record
+-- Return the current approval status for a record: required, approved, refused,
+-- and the derived status (no_approval_required, refused, approved, pending).
 CREATE FUNCTION get_approval_status(p_target_table TEXT, p_target_record_id TEXT)
 RETURNS TABLE(
     required INTEGER,

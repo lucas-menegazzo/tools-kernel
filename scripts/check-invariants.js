@@ -212,16 +212,17 @@ async function runChecks() {
   return 0;
 }
 
-let exitCode = 1;
-runChecks()
-  .then(code => {
-    exitCode = code;
-  })
-  .catch(error => {
+async function main() {
+  let exitCode = 1;
+  try {
+    exitCode = await runChecks();
+  } catch (error) {
     console.error('Fatal error running checks:', error);
     exitCode = 1;
-  })
-  .finally(async () => {
+  } finally {
     await pool.end();
-    process.exit(exitCode);
-  });
+  }
+  process.exit(exitCode);
+}
+
+main();

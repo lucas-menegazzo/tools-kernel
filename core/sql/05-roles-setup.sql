@@ -13,7 +13,9 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO tools_kernel_app;
 -- Grant execute on kernel functions
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO tools_kernel_app;
 
--- Function to set up actor context (should be called by application layer)
+-- Application-facing wrapper for set_actor_context.
+-- Should be called by the app layer (e.g., Express middleware) before any
+-- authorization-relevant query. Delegates validation to set_actor_context.
 CREATE FUNCTION app_set_actor_context(actor_id TEXT, actor_roles TEXT[], actor_team TEXT)
 RETURNS void AS $$
 BEGIN

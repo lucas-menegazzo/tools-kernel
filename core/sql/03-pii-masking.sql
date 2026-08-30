@@ -2,7 +2,9 @@
 -- Applied as the value leaves the data layer
 -- Based on roles defined in AGENTS.md
 
--- Masking function for CPF (Brazilian tax ID)
+-- Mask a CPF (Brazilian tax ID).
+-- If show_full_pii is true or the value is missing, return it unchanged.
+-- Otherwise return XXX.***.***-XX, preserving the last two digits.
 CREATE FUNCTION mask_cpf(cpf TEXT, show_full_pii BOOLEAN DEFAULT false)
 RETURNS TEXT AS $$
 DECLARE
@@ -24,7 +26,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
--- Masking function for email
+-- Mask an email address as u***@domain.com.
+-- If show_full_pii is true or the value is missing, return it unchanged.
 CREATE FUNCTION mask_email(email TEXT, show_full_pii BOOLEAN DEFAULT false)
 RETURNS TEXT AS $$
 BEGIN
@@ -37,7 +40,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
--- Masking function for phone
+-- Mask a phone number as (XX) *****-XXXX.
+-- If show_full_pii is true or the value is missing, return it unchanged.
 CREATE FUNCTION mask_phone(phone TEXT, show_full_pii BOOLEAN DEFAULT false)
 RETURNS TEXT AS $$
 BEGIN
@@ -50,7 +54,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
--- Check if current actor has PII revelation permission
+-- Return true if the current actor has a role that is allowed to see full PII.
+-- This is the single gate used by every masking function and masked view.
 CREATE FUNCTION can_reveal_pii()
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -60,7 +65,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Generic PII masking function based on field type
+-- Generic PII masking dispatcher.
+-- Given a value and its type (cpf, email, phone), calls the appropriate
+-- masking function using the current actor's can_reveal_pii() status.
 CREATE FUNCTION mask_pii(field_value TEXT, field_type TEXT DEFAULT 'cpf')
 RETURNS TEXT AS $$
 BEGIN
@@ -73,8 +80,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
--- Column-level security example for CPF field
--- This would be applied to views that expose PII data
+-- Create or replace a view that masks the given PII columns.
+-- The source view must already exist. One masked view is created per listed
+-- column. Uses can_reveal_pii() to decide whether to show the raw value.
 CREATE FUNCTION apply_pii_masking_to_view(view_name TEXT, pii_columns TEXT[])
 RETURNS void AS $$
 DECLARE
