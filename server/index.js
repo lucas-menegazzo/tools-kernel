@@ -7,15 +7,40 @@ const PORT = process.env.PORT || 3001;
 
 // Database connection
 // Uses the application role which has NOBYPASSRLS and RLS will be enforced
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5434,
-  database: process.env.DB_NAME || 'tools_kernel',
-  user: process.env.DB_USER || 'tools_kernel_app',
-  password: process.env.DB_PASSWORD || 'tools_kernel_app_password',
+const dbConfig = {
   // Abort if the database is not reachable on startup instead of hanging.
   connectionTimeoutMillis: 5000,
-});
+};
+
+if (process.env.DATABASE_URL) {
+  dbConfig.connectionString = process.env.DATABASE_URL;
+} else {
+  dbConfig.host = process.env.DB_HOST || 'localhost';
+  dbConfig.port = process.env.DB_PORT || 5434;
+  dbConfig.database = process.env.DB_NAME || 'tools_kernel';
+  dbConfig.user = process.env.DB_USER || 'tools_kernel_app';
+  dbConfig.password = process.env.DB_PASSWORD || 'tools_kernel_app_password';
+}
+
+// Render and most managed Postgres providers require TLS. Use their provided
+// hostname (or DATABASE_URL). Railway's self-signed cert is CN=localhost.
+if (process.env.DB_SSL === 'true' || process.env.DB_SSL === 'require') {
+  dbConfig.ssl = { rejectUnauthorized: false };
+} else if (process.env.DB_SSL === 'railway' || process.env.DB_SSL_SERVERNAME) {
+  dbConfig.ssl = { rejectUnauthorized: false, servername: process.env.DB_SSL_SERVERNAME || 'localhost' };
+}
+
+// pg overwrites our tls.servername with the host when the host is a domain.
+// For Railway's localhost cert we must keep the explicit servername.
+const net = require('net');
+const originalIsIP = net.isIP;
+if (dbConfig.ssl && dbConfig.ssl.servername) {
+  net.isIP = () => 4;
+}
+
+const pool = new Pool(dbConfig);
+
+net.isIP = originalIsIP;
 
 // Log unexpected pool-level errors and release the client if an idle client errors.
 pool.on('error', (err, client) => {
