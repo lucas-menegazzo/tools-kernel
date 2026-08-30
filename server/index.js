@@ -23,6 +23,27 @@ pool.on('error', (err, client) => {
   if (client) client.release(true);
 });
 
+// Verify that the database is reachable before starting the server.
+async function checkDatabase(retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt += 1) {
+    const client = await pool.connect().catch(err => ({ error: err }));
+    if (client && client.error) {
+      console.error(`Database connection attempt ${attempt}/${retries} failed:`, client.error.message);
+      if (attempt === retries) {
+        throw new Error('Could not connect to PostgreSQL after ' + retries + ' attempts');
+      }
+      // Wait before the next attempt.
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      continue;
+    }
+    await client.query('SELECT 1');
+    client.release();
+    console.log('Database connection verified');
+    return true;
+  }
+  return false;
+}
+
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
@@ -452,11 +473,39 @@ servePage('/', 'index.html');
 servePage('/refunds.html', 'refunds.html');
 servePage('/feature-flags.html', 'feature-flags.html');
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log('Actor selector available for isolation demonstration');
+// Health check that also verifies the database is reachable.
+app.get('/health', async (req, res) => {
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    res.json({ status: 'ok', database: 'reachable' });
+  } catch (error) {
+    if (client) client.release(true);
+    console.error('Health check failed:', error.message);
+    res.status(503).json({ status: 'error', database: 'unreachable', message: error.message });
+  }
 });
+
+// Global error handler for uncaught exceptions in routes.
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// Start server only after the database is reachable.
+checkDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log('Actor selector available for isolation demonstration');
+    });
+  })
+  .catch(err => {
+    console.error('Server failed to start:', err.message);
+    process.exit(1);
+  });
 
 // Graceful shutdown
 function gracefulShutdown(signal) {
