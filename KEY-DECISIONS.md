@@ -4,6 +4,10 @@
 
 We were asked to decide whether a Series C fintech should build or buy its internal-tools platform. To do this, I built a working example on the build side: three legacy Power Apps exported to a shared PostgreSQL kernel, plus a fourth app deliberately outside the original set, plus a fifth from a non-engineer issue. The goal was to get evidence on marginal cost, not to ship a product.
 
+## Value proposition
+
+For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is whether the factory is cheaper than buying more licenses. The numbers from the prototype say it is: after a 50-ACU investment in the kernel + first app, the fourth app cost 30 ACUs and the fifth 25. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
+
 ## Scope chosen and why
 
 I did not build the full 13-app estate. I built five apps, which is enough to test the two claims that matter:

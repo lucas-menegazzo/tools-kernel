@@ -18,6 +18,10 @@
 - Added a fourth app that the schema did not anticipate.
 - The cost curve dropped: the fourth app, intentionally harder, still cost less than the first.
 
+## Value proposition
+
+For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is whether building the factory is cheaper than buying more licenses. This prototype shows that once the kernel exists, the marginal cost of each new app falls: the first cost 50 ACUs, the fourth 30 ACUs, and the fifth 25 ACUs. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
+
 ## What it replaces
 
 The legacy Power Apps are in `legacy/`, unpacked from their `.msapp` files. See [`legacy/README.md`](legacy/README.md) for what each one does wrong.
