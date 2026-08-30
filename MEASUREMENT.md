@@ -41,12 +41,14 @@ or an artefact of every app looking alike
 - ACUs: [to be logged]
 - Session size: [to be logged]
 
-### Sessions 1–5 Log
+### Session Log
 
 | Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
 |---|---|---|---|---|---|---|
-| 1 · Núcleo + KYC do legado | [Session Insights] | [Session Insights] | [Session Insights] | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
-| 2 · Devoluções | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
-| 3 · Feature flags | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
-| 4 · Triagem | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
-| 5 · Intake | [Session Insights] | [Session Insights] | [Session Insights] | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
+| 0 · Migration (repo + kernel + KYC) | 23 | — | XL | 2 (`53ad14b`, `f2b2821`) | merge `d3d9bf5` | [ ] |
+| 1 · Núcleo + KYC do legado | 23 | — | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 2 · Devoluções | 23 | — | XL | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
+| 3 · Feature flags | 14 | — | L | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
+| 4 · Triagem | 14 | — | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
+| 5 · Intake | 14 | — | L | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
+| 6 · README wrap-up | 14 | — | L | 2 (`d9b756c`, `208ac12`) | — | [ ] |
