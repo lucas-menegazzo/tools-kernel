@@ -51,8 +51,8 @@ or an artefact of every app looking alike
 | 3 · Feature flags | [Session Insights] | 18 | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
 | 4 · Triagem de listas restritivas | [Session Insights] | 30 | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
 | 5 · Intake (contestação de cartão) | [Session Insights] | 25 | M | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
-| 6 · Mudança regulatória em 4 PRs, com migração | [Session Insights] | 35 | L | — | — | [ ] |
+| 6 · Mudança regulatória em 4 PRs, com migração *(não realizada)* | [Session Insights] | — | — | — | — | [ ] |
 
 > **Fora da contagem de sessões:** README e ajustes de `MEASUREMENT.md` (`d9b756c`, `208ac12`).
 
-**Estimativa de ACU:** baseada no orçamento do brief (150–250 ACUs; total aqui = 200), distribuída pela duração-alvo e complexidade de cada sessão. Os valores de `Mensagens` e `Tamanho` ainda vêm do Session Insights.
+**Estimativa de ACU:** baseada no orçamento do brief (150–250 ACUs; total das sessões realizadas = 165), distribuída pela duração-alvo e complexidade de cada sessão. Sessão 6 (mudança regulatória) não foi realizada. Os valores de `Mensagens` e `Tamanho` ainda vêm do Session Insights.
