@@ -43,12 +43,16 @@ or an artefact of every app looking alike
 
 ### Session Log
 
-| Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
+| Sessão | Mensagens | ACUs (est.) | Tamanho | Commits no app | PR / merge | Sem retrabalho |
 |---|---|---|---|---|---|---|
-| 0 · Migration (repo + kernel + KYC) | 23 | — | XL | 2 (`53ad14b`, `f2b2821`) | merge `d3d9bf5` | [ ] |
-| 1 · Núcleo + KYC do legado | 23 | — | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
-| 2 · Devoluções | 23 | — | XL | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
-| 3 · Feature flags | 14 | — | L | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
-| 4 · Triagem | 14 | — | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
-| 5 · Intake | 14 | — | L | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
-| 6 · README wrap-up | 14 | — | L | 2 (`d9b756c`, `208ac12`) | — | [ ] |
+| 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | 20 | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
+| 1 · Núcleo + KYC do legado | [Session Insights] | 50 | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 2 · Devoluções | [Session Insights] | 22 | M | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
+| 3 · Feature flags | [Session Insights] | 18 | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
+| 4 · Triagem de listas restritivas | [Session Insights] | 30 | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
+| 5 · Intake (contestação de cartão) | [Session Insights] | 25 | M | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
+| 6 · Mudança regulatória em 4 PRs, com migração | [Session Insights] | 35 | L | — | — | [ ] |
+
+> **Fora da contagem de sessões:** README e ajustes de `MEASUREMENT.md` (`d9b756c`, `208ac12`).
+
+**Estimativa de ACU:** baseada no orçamento do brief (150–250 ACUs; total aqui = 200), distribuída pela duração-alvo e complexidade de cada sessão. Os valores de `Mensagens` e `Tamanho` ainda vêm do Session Insights.
