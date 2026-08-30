@@ -102,6 +102,8 @@ Apps are a shell layer over a shared kernel (`core/`). The regulatory surface li
 
 ## How to run it end to end
 
+### Option 1: Docker (local)
+
 ```bash
 git clone https://github.com/lucas-menegazzo/tools-kernel.git
 cd tools-kernel
@@ -114,6 +116,23 @@ The init script in the container loads the kernel and the apps wired into `docke
 docker exec tools-kernel-postgres psql -U tools_kernel -d tools_kernel -f /apps/<app>/schema.sql
 docker exec tools-kernel-postgres psql -U tools_kernel -d tools_kernel -f /apps/<app>/seed-data.sql
 ```
+
+### Option 2: Cloud Postgres (Render, Neon, Railway, etc.)
+
+Set the environment variables on your web service:
+
+```text
+DATABASE_URL=postgresql://<user>:<pass>@<host>/<db>?sslmode=require
+DB_SSL=true
+```
+
+The app role `tools_kernel_app` is created by `core/sql/05-roles-setup.sql`. For a first-time seed, use the superuser/owner connection and run:
+
+```bash
+DATABASE_URL=<owner-url> DB_SSL=true node scripts/seed-db.js
+```
+
+Then point the live app to the `tools_kernel_app` user. `scripts/seed-db.js` loads the kernel, all app schemas and seed data in order.
 
 Run the checks:
 
@@ -205,14 +224,13 @@ Expected output:
 
 ## Live demo
 
-No hosted version is available. Run it locally:
+A hosted version is running on Railway with Neon Postgres:
 
-```bash
-docker-compose up -d
-npm start
-```
+- **KYC Review Queue:** `https://tools-kernel-production.up.railway.app/`
+- **Refunds Dashboard:** `https://tools-kernel-production.up.railway.app/refunds.html`
+- **Feature Flags:** `https://tools-kernel-production.up.railway.app/feature-flags.html`
 
-Then open `http://localhost:3001` and switch actors in the UI.
+`npm run check` passes against the hosted database.
 
 ## How to add a new app
 
