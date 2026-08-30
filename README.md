@@ -38,6 +38,15 @@ The apps in `apps/` are:
 
 Identity, customer data and the bureau connectors are mocked.
 
+## What this demonstrates about Devin
+
+This is not just a port of Power Apps to PostgreSQL. The same process shows how Devin behaves as the context layer across the whole codebase:
+
+- **It rebuilds and preserves Power Apps capabilities** (audit, RLS, approval, PII masking) in a new platform instead of starting from a description.
+- **It expands beyond the original brief.** The fourth app was deliberately out of scope, and the fifth came from a non-engineer issue in Portuguese. Both were handled without rewriting the kernel.
+- **It keeps documentation live.** README, `KEY-DECISIONS.md` and the DeepWiki index are updated as the code changes, because the model holds the whole repository in context.
+- **It surfaces scattered rules.** The Refunds app had the same approval ceiling written twice, with different numbers (50,000 in `btnAprovar.DisplayMode` and 60,000 in `btnAprovarSelecionadas`). That contradiction was caught because Devin could read the Power Fx, the Dataverse table and the new schema side by side.
+
 ## Architecture
 
 ```

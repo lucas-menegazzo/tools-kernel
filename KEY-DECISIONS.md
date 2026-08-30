@@ -60,3 +60,12 @@ If the fourth app had cost the same as the first, the "build" answer would be fa
 | 5 · Intake (issue #3) | 25 | Non-engineer request in Portuguese |
 
 The fourth app cost less than the first. That is evidence that the platform bet pays off. The fifth, coming from an issue in Portuguese, was the cheapest. The sample is small and the regulatory-change test was not done, so I would not call this conclusive. It is enough to keep building.
+
+## What the experiment demonstrates about Devin
+
+The process is not just a port of Power Apps to PostgreSQL. It also shows what a codebase-wide context layer makes possible:
+
+- **Rebuilding and preserving Power Apps capabilities** — audit, RLS, approval and PII masking were carried over to the new platform by reading the legacy code, not by being described.
+- **Expanding autonomously** — the fourth app was deliberately outside the brief and the fifth came from a non-engineer issue in Portuguese. Both were handled without rewriting the kernel.
+- **Keeping documentation live** — the README, this one-pager and the DeepWiki index were updated as the code changed because the model holds the whole repo in context.
+- **Surfacing scattered rules** — the Refunds app had the same approval ceiling written twice with different values (50,000 in `btnAprovar.DisplayMode` and 60,000 in `btnAprovarSelecionadas`). That contradiction was caught because Devin could read the Power Fx, the Dataverse table and the new schema at the same time.
