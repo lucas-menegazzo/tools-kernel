@@ -43,7 +43,7 @@ or an artefact of every app looking alike
 
 ### Session Log
 
-| Sessão | Mensagens | ACUs (est.) | Tamanho | Commits no app | PR / merge | Sem retrabalho |
+| Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
 |---|---|---|---|---|---|---|
 | 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | 20 | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
 | 1 · Kernel + KYC from legacy | [Session Insights] | 50 | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |

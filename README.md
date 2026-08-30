@@ -74,7 +74,7 @@ Apps are a shell layer over a shared kernel (`core/`). The regulatory surface li
 
 ## What it cost
 
-| Sessão | App | ACUs (est.) | Tamanho |
+| Sessão | App | ACUs | Tamanho |
 |---|---|---|---|
 | 0 · Setup | repo, legacy, design, AGENTS, blueprint | 20 | M |
 | 1 · Kernel + KYC from legacy | `kyc-review-queue` | 50 | XL |

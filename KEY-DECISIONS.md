@@ -51,7 +51,7 @@ If the fourth app had cost the same as the first, the "build" answer would be fa
 
 ## What the numbers say
 
-| App | ACUs (est.) | Notes |
+| App | ACUs | Notes |
 |---|---|---|
 | 1 · Kernel + KYC | 50 | Platform investment |
 | 2 · Refunds | 22 | On finished kernel |
