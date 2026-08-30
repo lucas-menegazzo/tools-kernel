@@ -76,6 +76,13 @@
             border-color: rgba(255, 255, 255, 0.16);
         }
 
+        .nav a.active {
+            background: #4489FF;
+            border-color: #4489FF;
+            color: white;
+            cursor: default;
+        }
+
         h1 {
             font-size: 36px;
             font-weight: 300;
@@ -301,16 +308,17 @@
 </head>
 <body>
     <div class="container">
+        <div class="nav">
+            <a class="active" href="#">KYC Review Queue</a>
+            <a href="/refunds.html">Refunds Dashboard</a>
+            <a href="/feature-flags.html">Feature Flag Admin</a>
+        </div>
+
         <header>
             <img src="cognition-logo.png" alt="Cognition" class="brand-logo">
             <h1>KYC Review Queue</h1>
             <p class="subtitle">Isolation demonstration with actor selector</p>
         </header>
-
-        <div class="nav">
-            <a href="/refunds.html">Refunds Dashboard</a>
-            <a href="/feature-flags.html">Feature Flag Admin</a>
-        </div>
 
         <div class="actor-selector">
             <h2>Select Actor</h2>

@@ -83,6 +83,13 @@
             border-color: rgba(255, 255, 255, 0.16);
         }
 
+        .nav a.active {
+            background: #4489FF;
+            border-color: #4489FF;
+            color: white;
+            cursor: default;
+        }
+
         .actor-selector {
             background: #1F1F1F;
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -272,16 +279,17 @@
 </head>
 <body>
     <div class="container">
+        <div class="nav">
+            <a href="/">KYC Review Queue</a>
+            <a class="active" href="#">Refunds Dashboard</a>
+            <a href="/feature-flags.html">Feature Flag Admin</a>
+        </div>
+
         <header>
             <img src="cognition-logo.png" alt="Cognition" class="brand-logo">
             <h1>Refunds Dashboard</h1>
             <p class="subtitle">Amount-based approval bands and a single approval code path</p>
         </header>
-
-        <div class="nav">
-            <a href="/">KYC Review Queue</a>
-            <a href="/feature-flags.html">Feature Flag Admin</a>
-        </div>
 
         <div class="actor-selector">
             <h2>Select Actor</h2>
