@@ -28,6 +28,20 @@ Identity, customer data and the bureau connectors are mocked.
 
 Apps are a shell layer over a shared kernel (`core/`). The regulatory surface lives in the kernel: auth (SSO), RBAC, audit trail, PII-masking, four-eyes approvals. The kernel also carries the shared UI set and the schema-to-app scaffold. Row-level policies are enforced and forced in the database, and the audit trail is a hash chain, so "how do you know this log was not altered" has an answer.
 
+## What it cost
+
+| Sessão | App | ACUs (est.) | Tamanho |
+|---|---|---|---|
+| 0 · Setup | repo, legacy, design, AGENTS, blueprint | 20 | M |
+| 1 · Núcleo + KYC do legado | `kyc-review-queue` | 50 | XL |
+| 2 · Devoluções | `refunds-dashboard` | 22 | M |
+| 3 · Feature flags | `feature-flag-admin` | 18 | S |
+| 4 · Triagem | `restrictive-list-screening` | 30 | L |
+| 5 · Intake | `dispute-review-queue` | 25 | M |
+| **Total realizado** | | **165** | |
+
+The platform bet survived the fourth app. The fourth app was deliberately harder and still cost less than the first. The fifth, an issue in Portuguese, was the cheapest. The curve is not an artefact of every app looking the same.
+
 ## How to run it end to end
 
 ```bash
