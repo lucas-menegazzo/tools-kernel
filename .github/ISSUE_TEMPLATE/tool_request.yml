@@ -1,0 +1,21 @@
+name: Tool request
+about: Request a new internal tool or queue
+title: "[tool-request] "
+labels: ["tool-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write the request in plain language, like a non-engineer would. Include:
+        - What must be tracked
+        - Fields or data involved
+        - Deadlines or thresholds
+        - Who can see and approve what
+  - type: textarea
+    id: request
+    attributes:
+      label: Request
+      description: Describe the tool you need.
+      placeholder: I need a queue to review chargebacks. Each one has the customer CPF, the amount, the reason, and a 45-day deadline to respond. Above R$ 10,000, two supervisors must approve. An analyst should only see their own cases.
+    validations:
+      required: true
