@@ -53,6 +53,29 @@
             display: block;
         }
 
+        .nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .nav a {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
         h1 {
             font-size: 36px;
             font-weight: 300;
@@ -283,7 +306,12 @@
             <h1>KYC Review Queue</h1>
             <p class="subtitle">Isolation demonstration with actor selector</p>
         </header>
-        
+
+        <div class="nav">
+            <a href="/refunds.html">Refunds Dashboard</a>
+            <a href="/feature-flags.html">Feature Flag Admin</a>
+        </div>
+
         <div class="actor-selector">
             <h2>Select Actor</h2>
             <div class="actor-buttons" id="actorButtons">
