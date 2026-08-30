@@ -27,3 +27,11 @@ those tokens and fonts. Do not invent a palette.
 ## Definition of done
 - `npm run check` passes
 - The PR body contains a requirement-to-implementation table
+
+## Tool request trigger
+When an issue is opened with the label `tool-request`:
+1. Read the issue body with the full repository context (legacy, apps, kernel, design).
+2. Translate the request into an app definition: `apps/<issue-name>/app.yaml`.
+3. Generate `apps/<issue-name>/schema.sql` and `apps/<issue-name>/seed-data.sql`.
+4. Load the schema, run `npm run check`, and open a pull request.
+5. Include in the PR body: the original request quoted, the requirement-to-implementation table, and any requirement that could not be expressed in the schema.
