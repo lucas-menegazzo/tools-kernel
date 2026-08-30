@@ -47,6 +47,14 @@ This is not just a port of Power Apps to PostgreSQL. The same process shows how 
 - **It keeps documentation live.** README, `MEASUREMENT.md` and the DeepWiki index are updated as the code changes, because the model holds the whole repository in context.
 - **It surfaces scattered rules.** The Refunds app had the same approval ceiling written twice, with different numbers (50,000 in `btnAprovar.DisplayMode` and 60,000 in `btnAprovarSelecionadas`). That contradiction was caught because Devin could read the Power Fx, the Dataverse table and the new schema side by side.
 
+## Autonomous issue-driven intake
+
+A new app can now be requested through a GitHub issue. When an issue is opened with the `tool-request` label, Devin is launched with the full repository context and the following prompt:
+
+> A non-engineer has requested an internal tool. The request is in the issue body, in Portuguese. Translate it into an app definition using the existing format: entities, fields with PII flags and masking, deadlines with their basis, the row-level policy, and the approval bands. Follow the naming rules and use the design system in `design/`. Generate the app, run the checks, and open a pull request. In the PR body include: the original request, quoted; the requirement-to-implementation table; one line naming anything in the request you could not express in the schema. Do not invent regulatory requirements the request does not state.
+
+The fifth app, `dispute-review-queue`, was built from a single issue in Portuguese. It demonstrates that the factory accepts work in the language the business speaks and turns it into a schema, a permission map, and a PR.
+
 ## Architecture
 
 ```
