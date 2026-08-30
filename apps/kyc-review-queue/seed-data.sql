@@ -27,24 +27,28 @@ INSERT INTO users (email, name, role, team) VALUES
 ('otavio.branco@thefintechcompany.com.br', 'Otavio Branco', 'CISO', 'Security')
 ON CONFLICT (email) DO NOTHING;
 
--- Function to generate realistic Brazilian CPF (invalid sequences)
+-- Function to generate a deliberately invalid Brazilian CPF.
+-- Produces an 11-digit string with a valid mask, but the last two digits are
+-- fixed zeroes instead of real check digits. This guarantees the CPF can never
+-- match a real taxpayer and keeps the seed data synthetic.
 CREATE OR REPLACE FUNCTION generate_invalid_cpf()
 RETURNS TEXT AS $$
 DECLARE
     base_digits TEXT;
-    cpf TEXT;
+    nine_digits TEXT;
 BEGIN
-    -- Generate CPF with deliberately invalid sequences
     base_digits := LPAD((random() * 999999)::int::text, 6, '0');
-    cpf := base_digits || '000000'; -- Invalid sequence
-    RETURN SUBSTRING(cpf FROM 1 FOR 3) || '.' || 
-           SUBSTRING(cpf FROM 4 FOR 3) || '.' || 
-           SUBSTRING(cpf FROM 7 FOR 3) || '-' || 
-           SUBSTRING(cpf FROM 10 FOR 2);
+    -- Nine-digit root: six random digits followed by three fixed zeroes.
+    -- The two trailing check digits are also zeroes, so no validation can pass.
+    nine_digits := base_digits || '000';
+    RETURN SUBSTRING(nine_digits FROM 1 FOR 3) || '.' || 
+           SUBSTRING(nine_digits FROM 4 FOR 3) || '.' || 
+           SUBSTRING(nine_digits FROM 7 FOR 3) || '-' || 
+           '00';
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to generate realistic Brazilian names
+-- Function to generate realistic Brazilian full names from fixed arrays.
 CREATE OR REPLACE FUNCTION generate_brazilian_name()
 RETURNS TEXT AS $$
 DECLARE
@@ -69,7 +73,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Generate case numbers with realistic distribution
+-- Generate a synthetic KYC case number in the form KYC-NNNNN-YYYY-NNN.
+-- The number has no business meaning and is used only for stable record
+-- identification and display in the queue.
 CREATE OR REPLACE FUNCTION generate_case_number()
 RETURNS TEXT AS $$
 BEGIN
