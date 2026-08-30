@@ -79,16 +79,16 @@ Apps are a shell layer over a shared kernel (`core/`). The regulatory surface li
 
 ## What it cost
 
-| Session | App | Size |
-|---|---|---|
-| 0 · Setup | repo, legacy, design, AGENTS, blueprint | M |
-| 1 · Kernel + KYC from legacy | `kyc-review-queue` | XL |
-| 2 · Refunds | `refunds-dashboard` | M |
-| 3 · Feature flags | `feature-flag-admin` | S |
-| 4 · Screening | `restrictive-list-screening` | L |
-| 5 · Intake | `dispute-review-queue` | M |
+| Session | App | Size | Wall clock |
+|---|---|---|---|
+| 0 · Setup | repo, legacy, design, AGENTS, blueprint | M | ~20 min |
+| 1 · Kernel + KYC from legacy | `kyc-review-queue` | XL | ~40 min |
+| 2 · Refunds | `refunds-dashboard` | M | 20 min (parallel with #3) |
+| 3 · Feature flags | `feature-flag-admin` | S | 20 min (parallel with #2) |
+| 4 · Screening | `restrictive-list-screening` | L | ~15 min |
+| 5 · Intake | `dispute-review-queue` | M | ~15 min |
 
-> ACUs were not captured from Devin Session Insights, so the table shows relative session size only. The curve is still visible: the first app is the largest investment, the fourth (deliberately harder) is smaller than the first, and the fifth is the smallest.
+> ACUs were not captured from Devin Session Insights, so the table shows relative session size and wall clock from the brief. The total run is about two hours. The curve is still visible: the first app is the largest investment, the fourth (deliberately harder) is smaller than the first, and the fifth is the smallest.
 
 > **The platform bet survived the fourth app.** The fourth app was deliberately harder and still cost less than the first. The fifth, an issue in Portuguese, was the cheapest. The curve is not an artefact of every app looking the same.
 

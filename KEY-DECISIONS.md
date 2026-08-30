@@ -51,13 +51,13 @@ If the fourth app had cost the same as the first, the "build" answer would be fa
 
 ## What the numbers say
 
-| App | Session size | Notes |
-|---|---|---|
-| 1 · Kernel + KYC | XL | Platform investment |
-| 2 · Refunds | M | On finished kernel |
-| 3 · Feature flags | S | On finished kernel |
-| 4 · Restrictive-list screening | L | Deliberately different shape |
-| 5 · Intake (issue #3) | M | Non-engineer request in Portuguese |
+| App | Session size | Wall clock | Notes |
+|---|---|---|---|
+| 1 · Kernel + KYC | XL | ~40 min | Platform investment |
+| 2 · Refunds | M | 20 min (parallel with #3) | On finished kernel |
+| 3 · Feature flags | S | 20 min (parallel with #2) | On finished kernel |
+| 4 · Restrictive-list screening | L | ~15 min | Deliberately different shape |
+| 5 · Intake (issue #3) | M | ~15 min | Non-engineer request in Portuguese |
 
 The fourth app cost less effort than the first. That is evidence that the platform bet pays off. The fifth, coming from an issue in Portuguese, was the cheapest. The sample is small and the regulatory-change test was not done, so I would not call this conclusive. It is enough to keep building.
 

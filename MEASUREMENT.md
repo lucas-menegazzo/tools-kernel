@@ -43,13 +43,13 @@ or an artefact of every app looking alike
 
 ### Session Log
 
-| Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
-|---|---|---|---|---|---|---|
-| 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | — | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
-| 1 · Kernel + KYC from legacy | [Session Insights] | — | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
-| 2 · Devoluções | [Session Insights] | — | M | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
-| 3 · Feature flags | [Session Insights] | — | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
-| 4 · Triagem de listas restritivas | [Session Insights] | — | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
-| 5 · Intake (contestação de cartão) | [Session Insights] | — | M | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
+| Sessão | Mensagens | ACUs | Tamanho | Wall clock | Commits no app | PR / merge | Sem retrabalho |
+|---|---|---|---|---|---|---|---|
+| 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | — | M | ~20 min | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
+| 1 · Kernel + KYC from legacy | [Session Insights] | — | XL | ~40 min | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 2 · Devoluções | [Session Insights] | — | M | 20 min (parallel with #3) | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
+| 3 · Feature flags | [Session Insights] | — | S | 20 min (parallel with #2) | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
+| 4 · Triagem de listas restritivas | [Session Insights] | — | L | ~15 min | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
+| 5 · Intake (contestação de cartão) | [Session Insights] | — | M | ~15 min | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
 
-**ACUs:** not captured from Devin Session Insights. The cells above are placeholders for future sessions. `Mensagens` and `Tamanho` also come from Session Insights.
+**ACUs:** not captured from Devin Session Insights. The cells above are placeholders for future sessions. `Mensagens` and `Tamanho` also come from Session Insights. Wall clock comes from the brief.
