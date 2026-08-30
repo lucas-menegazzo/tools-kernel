@@ -8,9 +8,16 @@ const config = {
   database: process.env.DB_NAME || 'tools_kernel',
   user: process.env.DB_USER || 'tools_kernel_app',
   password: process.env.DB_PASSWORD || 'tools_kernel_app_password',
+  // Abort quickly if the database is not reachable.
+  connectionTimeoutMillis: 5000,
 };
 
 const pool = new Pool(config);
+
+// Log unexpected pool errors instead of crashing the process.
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err.message);
+});
 
 const checks = [
   {
@@ -164,10 +171,21 @@ const checks = [
 
 async function runChecks() {
   console.log('Checking kernel invariants...');
-  
+
   let passed = 0;
   let failed = 0;
-  
+
+  // Verify the database is reachable before running any invariant checks.
+  try {
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    console.log('Database connection verified');
+  } catch (error) {
+    console.error('Database connection failed:', error.message);
+    throw error;
+  }
+
   for (const check of checks) {
     try {
       const result = await pool.query(check.sql);
@@ -183,20 +201,27 @@ async function runChecks() {
       failed++;
     }
   }
-  
-  await pool.end();
-  
+
   console.log(`\n${passed} checks passed, ${failed} checks failed`);
-  
+
   if (failed > 0) {
-    process.exit(1);
+    return 1;
   }
-  
+
   console.log('All invariants passed successfully!');
-  process.exit(0);
+  return 0;
 }
 
-runChecks().catch(error => {
-  console.error('Fatal error running checks:', error);
-  process.exit(1);
-});
+let exitCode = 1;
+runChecks()
+  .then(code => {
+    exitCode = code;
+  })
+  .catch(error => {
+    console.error('Fatal error running checks:', error);
+    exitCode = 1;
+  })
+  .finally(async () => {
+    await pool.end();
+    process.exit(exitCode);
+  });
