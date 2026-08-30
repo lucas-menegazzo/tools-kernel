@@ -54,6 +54,12 @@ Identity, customer data and the bureau connectors are mocked.
 
 Apps are a shell layer over a shared kernel (`core/`). The regulatory surface lives in the kernel: auth (SSO), RBAC, audit trail, PII-masking, four-eyes approvals. The kernel also carries the shared UI set and the schema-to-app scaffold. Row-level policies are enforced and forced in the database, and the audit trail is a hash chain, so "how do you know this log was not altered" has an answer.
 
+### Why this matters
+
+- **Fewer failure points.** A missing access check in a handler fails silently. A missing RLS policy fails loudly because the query returns nothing.
+- **Audit is append-only and chained.** Every mutation is recorded in the same transaction. The SHA-256 chain makes tampering detectable.
+- **Apps stay readable.** A new app is `app.yaml` + `schema.sql` + `seed-data.sql`. The kernel carries the regulated complexity.
+
 ## What it cost
 
 | Sessão | App | ACUs (est.) | Tamanho |
@@ -106,6 +112,68 @@ The actor selector in the UI sets the PostgreSQL session context. Pick one of th
 - **juliana.prado@thefintechcompany.com.br** — `Gerente Compliance`, Management. Sees all cases.
 
 The same mechanism applies to the other apps: the database resolves `current_actor_id()`, `current_actor_team()` and `has_role(...)` for every query.
+
+## API examples
+
+With the server running, you can hit the endpoints directly. Every call sets the actor in the PostgreSQL session, so the same query returns different rows for different actors.
+
+```bash
+# KYC queue for an analyst (Marina sees only her cases)
+curl "http://localhost:3001/api/kyc-cases?actor=marina.alves@thefintechcompany.com.br"
+```
+
+Expected output:
+
+```json
+{
+  "actor": { "name": "Marina Alves", "role": "Analista Compliance", ... },
+  "cases": [ ... ],
+  "count": 4
+}
+```
+
+```bash
+# Same queue for a supervisor (Helena sees all Team A cases)
+curl "http://localhost:3001/api/kyc-cases?actor=helena.castro@thefintechcompany.com.br"
+```
+
+Expected output:
+
+```json
+{
+  "actor": { "name": "Helena Castro", "role": "Supervisor Compliance", ... },
+  "cases": [ ... ],
+  "count": 387
+}
+```
+
+```bash
+# Test the four-eyes rule: a proposer cannot approve their own case
+curl -X POST http://localhost:3001/api/test-approval \
+  -H "Content-Type: application/json" \
+  -d '{"caseNumber": "KYC-00001-2026", "actorEmail": "marina.alves@thefintechcompany.com.br"}'
+```
+
+Expected output:
+
+```json
+{
+  "success": false,
+  "reason": "Proposer cannot approve own case",
+  "auditTrailRecorded": true
+}
+```
+
+## Live demo
+
+No hosted version is available. Run it locally:
+
+```bash
+docker-compose up -d
+npm start
+```
+
+Then open `http://localhost:3001` and switch actors in the UI.
 
 ## How to add a new app
 

@@ -40,10 +40,10 @@ biblioteca compartilhavel: uma UDF vive dentro do app que a declarou.
 |---|---|
 | `RefundsScreen.fx.yaml` · `btnAprovar.DisplayMode` | A alcada esta escrita aqui: **50.000**. |
 | `RefundsScreen.fx.yaml` · `btnAprovarSelecionadas` | A mesma alcada, escrita de novo: **60.000**. As duas divergiram e nada acusa. |
-| `RefundsScreen.fx.yaml` · `btnAprovarSelecionadas` | A aprovacao em lote **nao repete** a checagem de quem solicitou. Marcando a caixa, o solicitante aprova a propria devolucao. |
-| `RefundsScreen.fx.yaml` · `lblTotalAberto` | `Sum()` sobre a colecao truncada em 500. O total exibido esta errado e nao ha como perceber. |
-| `cr8a2_devolucao.table.json` | A aprovacao mora em `cr8a2_aprovadopor`, na propria linha. **Aprovacao dupla nao cabe no modelo**: a segunda sobrescreve a primeira. |
-| `cr8a2_devolucao.table.json` | Nao ha coluna com a faixa aplicada, entao nao se reconstroi depois qual regra valia na hora. |
+| `RefundsScreen.fx.yaml` · `btnAprovarSelecionadas` | A aprovação em lote **não repete** a checagem de quem solicitou. Marcando a caixa, o solicitante aprova a própria devolução. |
+| `RefundsScreen.fx.yaml` · `lblTotalAberto` | `Sum()` sobre a coleção truncada em 500. O total exibido está errado e não há como perceber. |
+| `cr8a2_devolucao.table.json` | A aprovação mora em `cr8a2_aprovadopor`, na própria linha. **Aprovação dupla não cabe no modelo**: a segunda sobrescreve a primeira. |
+| `cr8a2_devolucao.table.json` | Não há coluna com a faixa aplicada, então não se reconstroi depois qual regra valia na hora. |
 
 > O par `btnAprovar` / `btnAprovarSelecionadas` e o defeito mais instrutivo do
 > conjunto. Nao e um bug de digitacao: e o que acontece quando a mesma regra
