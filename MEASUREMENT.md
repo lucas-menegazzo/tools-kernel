@@ -46,7 +46,7 @@ or an artefact of every app looking alike
 | Sessão | Mensagens | ACUs (est.) | Tamanho | Commits no app | PR / merge | Sem retrabalho |
 |---|---|---|---|---|---|---|
 | 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | 20 | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
-| 1 · Núcleo + KYC do legado | [Session Insights] | 50 | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 1 · Kernel + KYC from legacy | [Session Insights] | 50 | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
 | 2 · Devoluções | [Session Insights] | 22 | M | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
 | 3 · Feature flags | [Session Insights] | 18 | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
 | 4 · Triagem de listas restritivas | [Session Insights] | 30 | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |

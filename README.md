@@ -54,6 +54,14 @@ Identity, customer data and the bureau connectors are mocked.
 
 Apps are a shell layer over a shared kernel (`core/`). The regulatory surface lives in the kernel: auth (SSO), RBAC, audit trail, PII-masking, four-eyes approvals. The kernel also carries the shared UI set and the schema-to-app scaffold. Row-level policies are enforced and forced in the database, and the audit trail is a hash chain, so "how do you know this log was not altered" has an answer.
 
+### How apps interact with the kernel
+
+1. **Each app declares itself in `app.yaml`**: entities, PII flags, deadlines, RLS policies, approval bands and business rules. This is the only place the app encodes its shape.
+2. **`schema.sql` installs the app schema**: tables, indexes, triggers and soft-delete protection. It calls kernel helpers such as `create_soft_delete_table`, `attach_audit_trigger` and `enable_rls`.
+3. **The database enforces everything.** The application role `tools_kernel_app` has `NOBYPASSRLS`. When a request arrives, `set_actor_context` sets the actor, team and roles for that transaction. Every query then sees only rows allowed by the app-specific RLS policy.
+4. **The shared audit trail, soft-delete and approval systems operate automatically** because the tables are registered with the kernel at creation time. A new app does not reimplement them.
+5. **The check script guards the contract.** `npm run check` verifies that every protected table has RLS forced, audit triggers attached and a configured approval band before the app can ship.
+
 ### Why this matters
 
 - **Fewer failure points.** A missing access check in a handler fails silently. A missing RLS policy fails loudly because the query returns nothing.
@@ -65,7 +73,7 @@ Apps are a shell layer over a shared kernel (`core/`). The regulatory surface li
 | Sessão | App | ACUs (est.) | Tamanho |
 |---|---|---|---|
 | 0 · Setup | repo, legacy, design, AGENTS, blueprint | 20 | M |
-| 1 · Núcleo + KYC do legado | `kyc-review-queue` | 50 | XL |
+| 1 · Kernel + KYC from legacy | `kyc-review-queue` | 50 | XL |
 | 2 · Devoluções | `refunds-dashboard` | 22 | M |
 | 3 · Feature flags | `feature-flag-admin` | 18 | S |
 | 4 · Triagem | `restrictive-list-screening` | 30 | L |
