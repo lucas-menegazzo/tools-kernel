@@ -1,0 +1,256 @@
+# Customer Refund Requests (Atendimento)
+# Derived from issue #8, opened by the Atendimento team in Portuguese.
+# Every rule below is traceable to a sentence of the request. Nothing that the
+# request does not state is declared here.
+
+app:
+  name: customer-refund-requests
+  description: Registro e acompanhamento de solicitacoes de reembolso de clientes pelo time de Atendimento
+  schema: customer_refunds
+  requested_by_issue: 8
+  replaces: "planilha usada hoje pelo time de Atendimento"
+
+roles:
+  - name: "Analista Atendimento"
+    description: "Registra solicitacoes e aprova valores dentro da sua alcada"
+  - name: "Supervisor Atendimento"
+    description: "Aprova acima da alcada do analista e ve o CPF completo"
+  - name: "Gerente Atendimento"
+    description: "Aprova acima da alcada do supervisor; ve solicitacoes de todos os times"
+
+entities:
+  refund_request:
+    table_name: refund_requests
+    fields:
+      - name: id
+        type: serial
+        primary_key: true
+        system: true
+
+      - name: request_id
+        type: text
+        unique: true
+        pii: false
+        description: "User-facing refund request identifier"
+
+      - name: customer_name
+        type: text
+        pii: true
+        pii_type: name
+        masking: none
+        masking_basis: "the request only asks for the CPF to be hidden from non-supervisors"
+        description: "Customer name (nome do cliente)"
+        max_length: 200
+
+      - name: customer_cpf
+        type: text
+        pii: true
+        pii_type: cpf
+        masking: mask_cpf
+        masking_gate: customer_refunds.can_reveal_customer_cpf
+        masking_basis: "request: o CPF nao pode aparecer inteiro para quem nao e supervisor"
+        description: "Customer CPF"
+        max_length: 14
+
+      - name: customer_email
+        type: text
+        pii: true
+        pii_type: email
+        masking: none
+        masking_basis: "the request only asks for the CPF to be hidden from non-supervisors"
+        description: "Customer e-mail"
+        max_length: 200
+
+      - name: amount
+        type: numeric
+        pii: false
+        description: "Refund amount in BRL (valor do reembolso)"
+
+      - name: reason
+        type: text
+        pii: false
+        description: "Free-text reason given by the customer (motivo). The request lists no fixed set of reasons, so no enum is declared."
+        max_length: 1000
+
+      - name: requested_at
+        type: timestamp
+        pii: false
+        description: "Date the customer asked for the refund (data do pedido)"
+
+      - name: resolution_deadline
+        type: timestamp
+        pii: false
+        description: "Deadline to resolve the request: 15 calendar days from requested_at"
+        deadline_basis: "atendimento-internal-sla-15-calendar-days"
+        deadline_basis_source: "request: o pedido precisa ser resolvido em ate 15 dias corridos a partir da data do pedido, conforme nosso SLA interno de atendimento"
+
+      - name: status
+        type: text
+        pii: false
+        enum: ["Registrada", "Aguardando aprovacao", "Aprovada", "Recusada", "Concluida"]
+        description: "Current status. The request asks for a status field without listing values; these are the states of the workflow the request describes (registro, aprovacao por alcada, resolucao)."
+
+      - name: team
+        type: text
+        pii: false
+        description: "Atendimento team that owns the request; drives row-level visibility"
+        max_length: 100
+
+      - name: created_by
+        type: text
+        pii: false
+        description: "Analyst who registered the request. This is the proposer for the four-eyes rule; it is not duplicated in a second column."
+        max_length: 100
+
+      - name: created_at
+        type: timestamp
+        pii: false
+        description: "When the record was created"
+        default: "NOW()"
+
+      - name: updated_at
+        type: timestamp
+        pii: false
+        description: "When the record was last updated"
+        default: "NOW()"
+
+state_machine:
+  entity: refund_request
+  initial_state: "Registrada"
+  states:
+    - name: "Registrada"
+      transitions:
+        - to: "Aguardando aprovacao"
+          action: "submit_for_approval"
+          allowed_roles: ["Analista Atendimento", "Supervisor Atendimento", "Gerente Atendimento"]
+        - to: "Aprovada"
+          action: "approve"
+          allowed_roles: ["Analista Atendimento", "Supervisor Atendimento", "Gerente Atendimento"]
+          requires_approval: true
+
+    - name: "Aguardando aprovacao"
+      transitions:
+        - to: "Aprovada"
+          action: "approve"
+          allowed_roles: ["Analista Atendimento", "Supervisor Atendimento", "Gerente Atendimento"]
+          requires_approval: true
+        - to: "Recusada"
+          action: "refuse"
+          allowed_roles: ["Analista Atendimento", "Supervisor Atendimento", "Gerente Atendimento"]
+
+    - name: "Aprovada"
+      transitions:
+        - to: "Concluida"
+          action: "close"
+          allowed_roles: ["Supervisor Atendimento", "Gerente Atendimento"]
+
+    - name: "Recusada"
+      transitions:
+        - to: "Concluida"
+          action: "close"
+          allowed_roles: ["Supervisor Atendimento", "Gerente Atendimento"]
+
+    - name: "Concluida"
+      transitions: []
+
+row_level_security:
+  entity: refund_request
+  policies:
+    - name: "team_visibility"
+      description: "Analysts and supervisors see only the requests of their own team (request: cada analista so pode ver os pedidos do seu proprio time). The manager sees every team, because the request puts refunds above R$ 5,000 in the manager's hands regardless of team."
+      using: |
+        ((has_role('Analista Atendimento') OR has_role('Supervisor Atendimento'))
+         AND team = current_actor_team())
+        OR has_role('Gerente Atendimento')
+
+pii_masking:
+  entity: refund_request
+  gate: customer_refunds.can_reveal_customer_cpf
+  gate_description: "Full CPF is revealed to Atendimento supervisors and managers, and to the kernel roles that can already reveal PII. Everyone else reads the masked value."
+  masked_view: customer_refunds.refund_request_queue
+  masked_fields:
+    - field: customer_cpf
+      function: mask_cpf
+
+approval_configuration:
+  table_name: customer_refunds.refund_requests
+  amount_field: amount
+  proposer_field: created_by
+  bands:
+    - name: "refund_request_analyst_band"
+      min_amount: 0
+      max_amount: 500
+      approving_roles: ["Analista Atendimento", "Supervisor Atendimento", "Gerente Atendimento"]
+      required_approvals: 1
+      description: "Reembolso ate R$ 500 o analista aprova sozinho"
+    - name: "refund_request_supervisor_band"
+      min_amount: 500
+      max_amount: 5000
+      approving_roles: ["Supervisor Atendimento", "Gerente Atendimento"]
+      required_approvals: 1
+      description: "Acima de R$ 500 precisa de aprovacao do supervisor"
+    - name: "refund_request_manager_band"
+      min_amount: 5000
+      max_amount: null
+      approving_roles: ["Gerente Atendimento"]
+      required_approvals: 1
+      description: "Acima de R$ 5.000 precisa do gerente"
+  rules:
+    - proposer_cannot_approve: true
+    - record_refusals: true
+    - distinct_approvals: true
+    - shared_code_path: true
+
+business_rules:
+  - name: "amount_approval_bands"
+    description: "Approval authority is decided by the refund amount, in the kernel's amount bands"
+    enforcement: "kernel_amount_approval_bands"
+
+  - name: "proposer_segregation"
+    description: "Quem pediu o reembolso nao pode ser quem aprova: the analyst in created_by cannot record an approval"
+    enforcement: "kernel_approval_system"
+
+  - name: "15_day_resolution_deadline"
+    description: "A request must be resolved within 15 calendar days of the request date"
+    enforcement: "database_check"
+    check: |
+      resolution_deadline <= requested_at + INTERVAL '15 days'
+    deadline_basis: "atendimento-internal-sla-15-calendar-days"
+
+  - name: "approval_required_before_approved_status"
+    description: "A request cannot reach 'Aprovada' without the approvals its amount band requires"
+    enforcement: "kernel_amount_approval_system"
+
+  - name: "audit_every_request_change"
+    description: "Every change to a refund request is recorded in the audit trail"
+    enforcement: "kernel_audit_trail"
+
+  - name: "archive_never_delete"
+    description: "Nada pode ser apagado de verdade, so arquivado: hard deletes are refused; records are archived with deleted_at. The request states no retention period, so the repository's existing operational retention policy applies."
+    enforcement: "kernel_soft_delete"
+    retention_years: 10
+    retention_basis: "operational-data-retention-policy"
+
+ui_requirements:
+  - queue_screen:
+      features:
+        - refund_request_list_with_deadline_highlighting
+        - cpf_masking_for_non_supervisors
+        - amount_column_with_approval_band_indicator
+        - team_based_filtering
+      tokens: use_design_system
+      fonts: use_design_system
+
+  - detail_screen:
+      features:
+        - refund_request_detail_view
+        - approve_refuse_actions_by_band
+        - approval_history_from_approvals_table
+      tokens: use_design_system
+      fonts: use_design_system
+
+  - monthly_export:
+      description: "Seria otimo tambem se desse para exportar em Excel no fim do mes. This is a reporting feature of the UI layer; it is not a schema rule and is not enforced by the database."
+      features:
+        - export_month_of_requests_to_spreadsheet
+      status: not_implemented_in_schema

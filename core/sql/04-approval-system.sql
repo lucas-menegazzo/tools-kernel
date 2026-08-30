@@ -121,7 +121,7 @@ BEGIN
     -- Check if actor is the proposer (should not approve own proposal)
     -- This requires the target table to have a 'created_by' or similar field
     BEGIN
-        EXECUTE format('SELECT created_by FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT created_by FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
         INTO v_proposer_id;
         
         IF v_proposer_id = v_actor_id THEN
@@ -206,10 +206,10 @@ BEGIN
 
     -- Get the monetary amount from the record (valor or amount)
     BEGIN
-        EXECUTE format('SELECT valor FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT valor FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_amount;
     EXCEPTION WHEN undefined_column THEN
-        EXECUTE format('SELECT amount FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT amount FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_amount;
     END;
 
@@ -230,10 +230,10 @@ BEGIN
 
     -- Proposer segregation: cannot approve own request
     BEGIN
-        EXECUTE format('SELECT solicitado_por FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT solicitado_por FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_proposer_id;
     EXCEPTION WHEN undefined_column THEN
-        EXECUTE format('SELECT created_by FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT created_by FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_proposer_id;
     END;
 
@@ -274,10 +274,10 @@ DECLARE
     v_approval_count INTEGER;
 BEGIN
     BEGIN
-        EXECUTE format('SELECT valor FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT valor FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_amount;
     EXCEPTION WHEN undefined_column THEN
-        EXECUTE format('SELECT amount FROM %I WHERE id = %L', p_target_table, p_target_record_id)
+        EXECUTE format('SELECT amount FROM %s WHERE id = %L', p_target_table::regclass, p_target_record_id)
             INTO v_amount;
     END;
 

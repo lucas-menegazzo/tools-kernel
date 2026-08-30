@@ -9,7 +9,7 @@ CREATE TABLE audit_trail (
     id BIGSERIAL PRIMARY KEY,
     table_name TEXT NOT NULL,
     record_id TEXT NOT NULL,
-    operation TEXT NOT NULL CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE')),
+    operation TEXT NOT NULL CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE', 'APPROVAL_APPROVED', 'APPROVAL_REFUSED')),
     actor_id TEXT NOT NULL,
     actor_roles TEXT[] NOT NULL,
     payload JSONB NOT NULL,
