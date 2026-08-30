@@ -6,7 +6,7 @@ We were asked to decide whether a Series C fintech should build or buy its inter
 
 ## Value proposition
 
-For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is whether the factory is cheaper than buying more licenses. The numbers from the prototype say it is: after a 50-ACU investment in the kernel + first app, the fourth app cost 30 ACUs and the fifth 25. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
+For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is whether the factory is cheaper than buying more licenses. The prototype shows it is: the first app (kernel + KYC) was the largest effort, the fourth app (deliberately harder) was still smaller than the first, and the fifth app (from a non-engineer issue in Portuguese) was the smallest. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
 
 ## Scope chosen and why
 
@@ -51,15 +51,15 @@ If the fourth app had cost the same as the first, the "build" answer would be fa
 
 ## What the numbers say
 
-| App | ACUs | Notes |
+| App | Session size | Notes |
 |---|---|---|
-| 1 · Kernel + KYC | 50 | Platform investment |
-| 2 · Refunds | 22 | On finished kernel |
-| 3 · Feature flags | 18 | On finished kernel |
-| 4 · Restrictive-list screening | 30 | Deliberately different shape |
-| 5 · Intake (issue #3) | 25 | Non-engineer request in Portuguese |
+| 1 · Kernel + KYC | XL | Platform investment |
+| 2 · Refunds | M | On finished kernel |
+| 3 · Feature flags | S | On finished kernel |
+| 4 · Restrictive-list screening | L | Deliberately different shape |
+| 5 · Intake (issue #3) | M | Non-engineer request in Portuguese |
 
-The fourth app cost less than the first. That is evidence that the platform bet pays off. The fifth, coming from an issue in Portuguese, was the cheapest. The sample is small and the regulatory-change test was not done, so I would not call this conclusive. It is enough to keep building.
+The fourth app cost less effort than the first. That is evidence that the platform bet pays off. The fifth, coming from an issue in Portuguese, was the cheapest. The sample is small and the regulatory-change test was not done, so I would not call this conclusive. It is enough to keep building.
 
 ## What the experiment demonstrates about Devin
 

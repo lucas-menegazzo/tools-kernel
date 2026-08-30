@@ -45,11 +45,11 @@ or an artefact of every app looking alike
 
 | Sessão | Mensagens | ACUs | Tamanho | Commits no app | PR / merge | Sem retrabalho |
 |---|---|---|---|---|---|---|
-| 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | 20 | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
-| 1 · Kernel + KYC from legacy | [Session Insights] | 50 | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
-| 2 · Devoluções | [Session Insights] | 22 | M | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
-| 3 · Feature flags | [Session Insights] | 18 | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
-| 4 · Triagem de listas restritivas | [Session Insights] | 30 | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
-| 5 · Intake (contestação de cartão) | [Session Insights] | 25 | M | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
+| 0 · Pré-cronômetro: repo, legacy, design, AGENTS, blueprint | [Session Insights] | — | M | 2 (`53ad14b`, `f2b2821`) | — | [ ] |
+| 1 · Kernel + KYC from legacy | [Session Insights] | — | XL | 2 em `apps/kyc-review-queue` | PR #1 (`d3d9bf5`) | [ ] |
+| 2 · Devoluções | [Session Insights] | — | M | 1 em `apps/refunds-dashboard` | PR #1 (`d3d9bf5`) | [ ] |
+| 3 · Feature flags | [Session Insights] | — | S | 1 em `apps/feature-flag-admin` | PR #1 (`d3d9bf5`) | [ ] |
+| 4 · Triagem de listas restritivas | [Session Insights] | — | L | 1 em `apps/restrictive-list-screening` | PR #2 (`9ed5435`) | [ ] |
+| 5 · Intake (contestação de cartão) | [Session Insights] | — | M | 1 em `apps/dispute-review-queue` | PR #4 (`044fe10`) | [ ] |
 
-**Estimativa de ACU:** baseada no orçamento do brief (150–250 ACUs; total das sessões realizadas = 165), distribuída pela duração-alvo e complexidade de cada sessão. Os valores de `Mensagens` e `Tamanho` ainda vêm do Session Insights.
+**ACUs:** not captured from Devin Session Insights. The cells above are placeholders for future sessions. `Mensagens` and `Tamanho` also come from Session Insights.
