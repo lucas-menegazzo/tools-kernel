@@ -13,8 +13,17 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE FUNCTION set_actor_context(actor_id text, actor_roles text[], actor_team text)
 RETURNS void AS $$
 BEGIN
-    PERFORM set_config('app.current_actor_id', COALESCE(actor_id, ''), true);
-    PERFORM set_config('app.current_actor_roles', COALESCE(array_to_string(actor_roles, ','), ''), true);
+    -- Require an actor id; roles and team may be empty but must be present.
+    IF actor_id IS NULL THEN
+        RAISE EXCEPTION 'set_actor_context: actor_id cannot be NULL';
+    END IF;
+
+    IF actor_roles IS NULL THEN
+        RAISE EXCEPTION 'set_actor_context: actor_roles cannot be NULL';
+    END IF;
+
+    PERFORM set_config('app.current_actor_id', actor_id, true);
+    PERFORM set_config('app.current_actor_roles', array_to_string(actor_roles, ','), true);
     PERFORM set_config('app.current_actor_team', COALESCE(actor_team, ''), true);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
