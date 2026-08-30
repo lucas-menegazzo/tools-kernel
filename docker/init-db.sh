@@ -80,4 +80,16 @@ if [ -f "/apps/feature-flag-admin/seed-data.sql" ]; then
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/feature-flag-admin/seed-data.sql
 fi
 
+# Load Customer Refund Requests app SQL files
+echo "Loading Customer Refund Requests app SQL files..."
+if [ -f "/apps/customer-refund-requests/schema.sql" ]; then
+    echo "Loading /apps/customer-refund-requests/schema.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/customer-refund-requests/schema.sql
+fi
+
+if [ -f "/apps/customer-refund-requests/seed-data.sql" ]; then
+    echo "Loading /apps/customer-refund-requests/seed-data.sql..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /apps/customer-refund-requests/seed-data.sql
+fi
+
 echo "Database initialization completed successfully."

@@ -157,6 +157,68 @@ const checks = [
     validate: (result) => parseInt(result.rows[0]?.count) >= 3,
   },
   {
+    name: 'Force RLS enabled on customer_refunds.refund_requests',
+    sql: `
+      SELECT relforcerowsecurity
+      FROM pg_class
+      WHERE relname = 'refund_requests' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'customer_refunds')
+    `,
+    validate: (result) => result.rows[0]?.relforcerowsecurity === true,
+  },
+  {
+    name: 'Audit trigger attached to customer_refunds.refund_requests',
+    sql: `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_trigger
+        WHERE tgname = 'audit_trigger'
+        AND tgrelid = (SELECT oid FROM pg_class WHERE relname = 'refund_requests' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'customer_refunds'))
+      )
+    `,
+    validate: (result) => result.rows[0]?.exists === true,
+  },
+  {
+    name: 'Soft delete protection attached to customer_refunds.refund_requests',
+    sql: `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_trigger
+        WHERE tgname = 'prevent_hard_delete_trigger'
+        AND tgrelid = (SELECT oid FROM pg_class WHERE relname = 'refund_requests' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'customer_refunds'))
+      )
+    `,
+    validate: (result) => result.rows[0]?.exists === true,
+  },
+  {
+    name: 'Customer refund request amount bands cover the three alcadas',
+    sql: `
+      SELECT COUNT(*)
+      FROM amount_approval_bands
+      WHERE table_name = 'customer_refunds.refund_requests'
+    `,
+    validate: (result) => parseInt(result.rows[0]?.count) === 3,
+  },
+  {
+    name: '15-day resolution deadline trigger attached',
+    sql: `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_trigger
+        WHERE tgname = 'enforce_resolution_deadline'
+        AND tgrelid = (SELECT oid FROM pg_class WHERE relname = 'refund_requests' AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'customer_refunds'))
+      )
+    `,
+    validate: (result) => result.rows[0]?.exists === true,
+  },
+  {
+    name: 'Customer refund CPF masking gate exists',
+    sql: `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE n.nspname = 'customer_refunds' AND p.proname = 'can_reveal_customer_cpf'
+      )
+    `,
+    validate: (result) => result.rows[0]?.exists === true,
+  },
+  {
     name: 'Refunds approval shared code path function exists',
     sql: `
       SELECT EXISTS (
