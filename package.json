@@ -6,7 +6,11 @@
     "check": "node scripts/check-invariants.js",
     "start": "node server/index.js"
   },
-  "keywords": ["fintech", "internal-tools", "kernel"],
+  "keywords": [
+    "fintech",
+    "internal-tools",
+    "kernel"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

@@ -1,11 +1,21 @@
 -- Application role setup with NOBYPASSRLS
 -- The application connects with a role that has NOBYPASSRLS and no DDL rights
 
--- Create application role with login capability
-CREATE ROLE tools_kernel_app WITH LOGIN PASSWORD 'tools_kernel_app_password' NOBYPASSRLS;
+-- Create application role with login capability (idempotent for cloud databases)
+DO $$
+BEGIN
+    CREATE ROLE tools_kernel_app WITH LOGIN PASSWORD 'tools_kernel_app_password' NOBYPASSRLS;
+EXCEPTION WHEN duplicate_object THEN
+    RAISE NOTICE 'Role tools_kernel_app already exists';
+END
+$$;
 
 -- Grant necessary permissions to application role
-GRANT CONNECT ON DATABASE tools_kernel TO tools_kernel_app;
+DO $$
+BEGIN
+    EXECUTE format('GRANT CONNECT ON DATABASE %I TO tools_kernel_app', current_database());
+END
+$$;
 GRANT USAGE ON SCHEMA public TO tools_kernel_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO tools_kernel_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO tools_kernel_app;

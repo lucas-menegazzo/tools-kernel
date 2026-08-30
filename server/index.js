@@ -27,20 +27,13 @@ if (process.env.DATABASE_URL) {
 if (process.env.DB_SSL === 'true' || process.env.DB_SSL === 'require') {
   dbConfig.ssl = { rejectUnauthorized: false };
 } else if (process.env.DB_SSL === 'railway' || process.env.DB_SSL_SERVERNAME) {
-  dbConfig.ssl = { rejectUnauthorized: false, servername: process.env.DB_SSL_SERVERNAME || 'localhost' };
-}
-
-// pg overwrites our tls.servername with the host when the host is a domain.
-// For Railway's localhost cert we must keep the explicit servername.
-const net = require('net');
-const originalIsIP = net.isIP;
-if (dbConfig.ssl && dbConfig.ssl.servername) {
-  net.isIP = () => 4;
+  dbConfig.ssl = {
+    rejectUnauthorized: false,
+    servername: process.env.DB_SSL_SERVERNAME || 'localhost',
+  };
 }
 
 const pool = new Pool(dbConfig);
-
-net.isIP = originalIsIP;
 
 // Log unexpected pool-level errors and release the client if an idle client errors.
 pool.on('error', (err, client) => {
