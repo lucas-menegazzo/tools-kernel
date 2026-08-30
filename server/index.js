@@ -13,13 +13,21 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'tools_kernel',
   user: process.env.DB_USER || 'tools_kernel_app',
   password: process.env.DB_PASSWORD || 'tools_kernel_app_password',
+  // Abort if the database is not reachable on startup instead of hanging.
+  connectionTimeoutMillis: 5000,
+});
+
+// Log unexpected pool-level errors and release the client if an idle client errors.
+pool.on('error', (err, client) => {
+  console.error('Unexpected database pool error:', err.message);
+  if (client) client.release(true);
 });
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Available KYC actors for testing
+// Available actors for testing
 const actors = [
   {
     email: 'marina.alves@thefintechcompany.com.br',
@@ -40,6 +48,38 @@ const actors = [
     name: 'Otavio Branco',
     role: 'CISO',
     team: 'Security',
+    canRevealPII: true
+  }
+];
+
+// Available Refunds actors for testing
+const refundActors = [
+  {
+    email: 'larissa.melo@thefintechcompany.com.br',
+    name: 'Larissa Melo',
+    role: 'Analista Senior',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'bruno.tavares@thefintechcompany.com.br',
+    name: 'Bruno Tavares',
+    role: 'Analista Senior',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'paula.werneck@thefintechcompany.com.br',
+    name: 'Paula Werneck',
+    role: 'Supervisor Operacoes',
+    team: 'Operacoes',
+    canRevealPII: false
+  },
+  {
+    email: 'ricardo.salles@thefintechcompany.com.br',
+    name: 'Ricardo Salles',
+    role: 'Gerente Operacoes',
+    team: 'Operacoes',
     canRevealPII: true
   }
 ];
@@ -80,38 +120,6 @@ const featureFlagActors = [
     role: 'Leitor Plataforma',
     team: 'Risk',
     canRevealPII: false
-  }
-];
-
-// Available Refunds actors for testing
-const refundActors = [
-  {
-    email: 'larissa.melo@thefintechcompany.com.br',
-    name: 'Larissa Melo',
-    role: 'Analista Senior',
-    team: 'Operacoes',
-    canRevealPII: false
-  },
-  {
-    email: 'bruno.tavares@thefintechcompany.com.br',
-    name: 'Bruno Tavares',
-    role: 'Analista Senior',
-    team: 'Operacoes',
-    canRevealPII: false
-  },
-  {
-    email: 'paula.werneck@thefintechcompany.com.br',
-    name: 'Paula Werneck',
-    role: 'Supervisor Operacoes',
-    team: 'Operacoes',
-    canRevealPII: false
-  },
-  {
-    email: 'ricardo.salles@thefintechcompany.com.br',
-    name: 'Ricardo Salles',
-    role: 'Gerente Operacoes',
-    team: 'Operacoes',
-    canRevealPII: true
   }
 ];
 
@@ -451,9 +459,15 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  pool.end(() => {
-    console.log('Database pool closed');
-    process.exit(0);
-  });
-});
+function gracefulShutdown(signal) {
+  return () => {
+    console.log(`Received ${signal}. Closing database pool...`);
+    pool.end(() => {
+      console.log('Database pool closed');
+      process.exit(0);
+    });
+  };
+}
+
+process.on('SIGTERM', gracefulShutdown('SIGTERM'));
+process.on('SIGINT', gracefulShutdown('SIGINT'));
