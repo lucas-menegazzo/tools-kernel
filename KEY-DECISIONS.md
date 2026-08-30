@@ -6,7 +6,7 @@ We were asked to decide whether a Series C fintech should build or buy its inter
 
 ## Value proposition
 
-For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is whether the factory is cheaper than buying more licenses. The prototype shows it is: the first app (kernel + KYC) was the largest effort, the fourth app (deliberately harder) was still smaller than the first, and the fifth app (from a non-engineer issue in Portuguese) was the smallest. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
+For a fintech spending US$ 250K/year on a low-code platform and planning ten more apps, the question is simple: is the cost of building the next app lower than buying another license? The prototype shows it is: the first app (kernel + KYC) was the largest effort, the fourth app (deliberately harder) was still smaller than the first, and the fifth app (from a non-engineer issue in Portuguese) was the smallest. The platform also makes regulated controls unavoidable—audit, RLS and approval are enforced in the database, not in UI properties that can be bypassed or copied wrong.
 
 ## Scope chosen and why
 
